@@ -227,3 +227,6 @@ jhipster:
 # ===================================================================
 
 # application:
+catedra:
+  url: http://192.168.194.250:8080
+  token: "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJwZXJlem1hdGlhcyIsImV4cCI6MTc2NzUyODU3MCwiYXV0aCI6IlJPTEVfVVNFUiIsImlhdCI6MTc2NDkzNjU3MH0.DVyJYKmGYM_b7hoSOhTyWFWokpxVW3ACDpZCh94Wtwi6padwdzYBoVXDDXsWXjkGH7AoIpgyIhntHr7bncmxpw"
