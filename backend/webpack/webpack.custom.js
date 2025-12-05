@@ -82,7 +82,7 @@ module.exports = async (config, options, targetOptions) => {
         analyzerMode: 'static',
         openAnalyzer: false,
         // Webpack statistics in temporary folder
-        reportFilename: '../../../stats.html',
+        reportFilename: '../../stats.html',
       }),
     );
   }
