@@ -1,0 +1,29 @@
+// --- DEFINICIÓN DE EVENTO ---
+entity Evento {
+    titulo String required,
+    descripcion String,
+    fechaHora Instant required,
+    ubicacion String,
+    precio BigDecimal required min(0)
+}
+
+// --- DEFINICIÓN DE VENTA ---
+entity Venta {
+    fechaVenta Instant required,
+    total BigDecimal required min(0),
+    asientos String required
+}
+
+// --- RELACIONES NORMALES ---
+relationship ManyToOne {
+    Venta{evento(titulo) required} to Evento
+}
+
+// --- RELACIÓN CON USUARIO (Sintaxis Especial) ---
+relationship ManyToOne {
+    Venta{user(login) required} to User with builtInEntity
+}
+
+// --- CONFIGURACIÓN ---
+paginate Venta, Evento with pagination
+service Venta, Evento with serviceClass

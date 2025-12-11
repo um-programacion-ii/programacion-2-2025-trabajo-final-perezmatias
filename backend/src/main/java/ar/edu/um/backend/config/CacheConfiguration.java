@@ -83,6 +83,8 @@ public class CacheConfiguration {
             createCache(cm, ar.edu.um.backend.domain.User.class.getName(), jcacheConfiguration);
             createCache(cm, ar.edu.um.backend.domain.Authority.class.getName(), jcacheConfiguration);
             createCache(cm, ar.edu.um.backend.domain.User.class.getName() + ".authorities", jcacheConfiguration);
+            createCache(cm, ar.edu.um.backend.domain.Evento.class.getName(), jcacheConfiguration);
+            createCache(cm, ar.edu.um.backend.domain.Venta.class.getName(), jcacheConfiguration);
             // jhipster-needle-redis-add-entry
         };
     }
