@@ -19,14 +19,18 @@ public class ConnectivityTester implements CommandLineRunner {
         System.out.println("--------------------------------------------------");
 
         try {
+            System.out.println("🔍 Buscando claves 'evento_*' en Redis...");
+            java.util.Set<String> keys = redisTemplate.keys("evento_*");
 
-            String datosEvento = redisTemplate.opsForValue().get("evento_1");
-
-            if (datosEvento != null) {
-                System.out.println("✅ REDIS CONECTADO: Se recuperaron datos del evento_1:");
-                System.out.println(datosEvento);
+            if (keys != null && !keys.isEmpty()) {
+                System.out.println("✅ ¡ENCONTRÉ ESTAS CLAVES!:");
+                for (String key : keys) {
+                    System.out.println("   🔑 " + key);
+                    System.out.println("      Contenido: " + redisTemplate.opsForValue().get(key));
+                }
             } else {
-                System.out.println("⚠️ REDIS CONECTADO PERO SIN DATOS: La clave 'evento_1' no devolvió nada.");
+                System.out.println("📭 El servidor Redis está accesible, pero NO tiene eventos cargados ahora mismo.");
+                System.out.println("💡 Tip: Prueba llamar al endpoint 'forzar-actualizacion' más tarde.");
             }
         } catch (Exception e) {
             System.err.println("❌ ERROR CRÍTICO EN REDIS: " + e.getMessage());
