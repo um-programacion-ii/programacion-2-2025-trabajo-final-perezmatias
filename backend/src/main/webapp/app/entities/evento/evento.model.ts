@@ -7,6 +7,8 @@ export interface IEvento {
   fechaHora?: dayjs.Dayjs | null;
   ubicacion?: string | null;
   precio?: number | null;
+  cantidadFilas?: number | null;
+  cantidadColumnas?: number | null;
 }
 
 export type NewEvento = Omit<IEvento, 'id'> & { id: null };

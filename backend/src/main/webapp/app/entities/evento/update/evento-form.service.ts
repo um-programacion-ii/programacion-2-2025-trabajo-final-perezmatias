@@ -36,6 +36,8 @@ type EventoFormGroupContent = {
   fechaHora: FormControl<EventoFormRawValue['fechaHora']>;
   ubicacion: FormControl<EventoFormRawValue['ubicacion']>;
   precio: FormControl<EventoFormRawValue['precio']>;
+  cantidadFilas: FormControl<EventoFormRawValue['cantidadFilas']>;
+  cantidadColumnas: FormControl<EventoFormRawValue['cantidadColumnas']>;
 };
 
 export type EventoFormGroup = FormGroup<EventoFormGroupContent>;
@@ -65,6 +67,12 @@ export class EventoFormService {
       ubicacion: new FormControl(eventoRawValue.ubicacion),
       precio: new FormControl(eventoRawValue.precio, {
         validators: [Validators.required, Validators.min(0)],
+      }),
+      cantidadFilas: new FormControl(eventoRawValue.cantidadFilas, {
+        validators: [Validators.required],
+      }),
+      cantidadColumnas: new FormControl(eventoRawValue.cantidadColumnas, {
+        validators: [Validators.required],
       }),
     });
   }

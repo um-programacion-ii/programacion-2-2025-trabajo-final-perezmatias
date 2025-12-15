@@ -54,7 +54,9 @@ public class EventoAsserts {
             .satisfies(a -> assertThat(a.getUbicacion()).as("check ubicacion").isEqualTo(expected.getUbicacion()))
             .satisfies(a ->
                 assertThat(a.getPrecio()).as("check precio").usingComparator(bigDecimalCompareTo).isEqualTo(expected.getPrecio())
-            );
+            )
+            .satisfies(a -> assertThat(a.getCantidadFilas()).as("check cantidadFilas").isEqualTo(expected.getCantidadFilas()))
+            .satisfies(a -> assertThat(a.getCantidadColumnas()).as("check cantidadColumnas").isEqualTo(expected.getCantidadColumnas()));
     }
 
     /**

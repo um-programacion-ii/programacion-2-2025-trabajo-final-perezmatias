@@ -43,6 +43,14 @@ public class Evento implements Serializable {
     @Column(name = "precio", precision = 21, scale = 2, nullable = false)
     private BigDecimal precio;
 
+    @NotNull
+    @Column(name = "cantidad_filas", nullable = false)
+    private Integer cantidadFilas;
+
+    @NotNull
+    @Column(name = "cantidad_columnas", nullable = false)
+    private Integer cantidadColumnas;
+
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
     public Long getId() {
@@ -123,6 +131,32 @@ public class Evento implements Serializable {
         this.precio = precio;
     }
 
+    public Integer getCantidadFilas() {
+        return this.cantidadFilas;
+    }
+
+    public Evento cantidadFilas(Integer cantidadFilas) {
+        this.setCantidadFilas(cantidadFilas);
+        return this;
+    }
+
+    public void setCantidadFilas(Integer cantidadFilas) {
+        this.cantidadFilas = cantidadFilas;
+    }
+
+    public Integer getCantidadColumnas() {
+        return this.cantidadColumnas;
+    }
+
+    public Evento cantidadColumnas(Integer cantidadColumnas) {
+        this.setCantidadColumnas(cantidadColumnas);
+        return this;
+    }
+
+    public void setCantidadColumnas(Integer cantidadColumnas) {
+        this.cantidadColumnas = cantidadColumnas;
+    }
+
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
@@ -152,6 +186,8 @@ public class Evento implements Serializable {
             ", fechaHora='" + getFechaHora() + "'" +
             ", ubicacion='" + getUbicacion() + "'" +
             ", precio=" + getPrecio() +
+            ", cantidadFilas=" + getCantidadFilas() +
+            ", cantidadColumnas=" + getCantidadColumnas() +
             "}";
     }
 }

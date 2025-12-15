@@ -22,7 +22,9 @@
       "descripcion": "Descripcion",
       "fechaHora": "Fecha Hora",
       "ubicacion": "Ubicacion",
-      "precio": "Precio"
+      "precio": "Precio",
+      "cantidadFilas": "Cantidad Filas",
+      "cantidadColumnas": "Cantidad Columnas"
     }
   }
 }

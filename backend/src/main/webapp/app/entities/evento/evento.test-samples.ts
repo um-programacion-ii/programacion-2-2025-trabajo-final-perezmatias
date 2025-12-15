@@ -7,6 +7,8 @@ export const sampleWithRequiredData: IEvento = {
   titulo: 'inwardly chromakey',
   fechaHora: dayjs('2025-12-11T14:49'),
   precio: 9541.47,
+  cantidadFilas: 28310,
+  cantidadColumnas: 18183,
 };
 
 export const sampleWithPartialData: IEvento = {
@@ -16,6 +18,8 @@ export const sampleWithPartialData: IEvento = {
   fechaHora: dayjs('2025-12-11T17:32'),
   ubicacion: 'eventually quarrelsomely',
   precio: 25084.61,
+  cantidadFilas: 20873,
+  cantidadColumnas: 18218,
 };
 
 export const sampleWithFullData: IEvento = {
@@ -25,12 +29,16 @@ export const sampleWithFullData: IEvento = {
   fechaHora: dayjs('2025-12-11T21:51'),
   ubicacion: 'outrageous besides',
   precio: 22747.6,
+  cantidadFilas: 20925,
+  cantidadColumnas: 15305,
 };
 
 export const sampleWithNewData: NewEvento = {
   titulo: 'wherever nor',
   fechaHora: dayjs('2025-12-11T06:43'),
   precio: 12901.34,
+  cantidadFilas: 26297,
+  cantidadColumnas: 10587,
   id: null,
 };
 

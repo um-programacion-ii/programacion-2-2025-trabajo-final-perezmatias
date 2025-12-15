@@ -8,8 +8,8 @@ import ar.edu.um.backend.service.dto.AsientoDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,13 +29,62 @@ public class OrquestadorVentaService {
         this.ventaRepository = ventaRepository;
     }
 
+    public List<AsientoDTO> obtenerMapaDeAsientos(Long eventoId) {
+        Evento evento = eventoRepository.findById(eventoId)
+            .orElseThrow(() -> new RuntimeException("Evento no encontrado"));
+
+        List<AsientoDTO> ocupados = proxyService.obtenerAsientos(eventoId);
+        if (ocupados == null) ocupados = new ArrayList<>();
+
+        List<AsientoDTO> mapaCompleto = new ArrayList<>();
+
+        int maxFilas = (evento.getCantidadFilas() != null) ? evento.getCantidadFilas() : 10;
+        int maxCols = (evento.getCantidadColumnas() != null) ? evento.getCantidadColumnas() : 10;
+
+        if (maxFilas > 50) maxFilas = 50;
+        if (maxCols > 50) maxCols = 50;
+
+        System.out.println("📊 Generando mapa de " + maxFilas + "x" + maxCols + " para Evento " + eventoId);
+
+        for (int f = 1; f <= maxFilas; f++) {
+            for (int c = 1; c <= maxCols; c++) {
+
+                AsientoDTO asiento = new AsientoDTO();
+                asiento.setFila(f);
+                asiento.setColumna(c);
+                asiento.setEstado("Libre");
+
+                int finalF = f;
+                int finalC = c;
+
+                Optional<AsientoDTO> ocupado = ocupados.stream()
+                    .filter(o -> o.getFila() == finalF && o.getColumna() == finalC)
+                    .findFirst();
+
+                if (ocupado.isPresent()) {
+                    AsientoDTO infoReal = ocupado.get();
+                    if (infoReal.estaDisponible()) {
+                        asiento.setEstado("Libre");
+                    } else {
+                        asiento.setEstado(infoReal.getEstado());
+                    }
+                }
+
+                mapaCompleto.add(asiento);
+            }
+        }
+
+        return mapaCompleto;
+    }
+
     public Venta comprarEntrada(Long eventoId, int fila, int columna, String nombreComprador, String dniComprador) {
         Evento evento = eventoRepository.findById(eventoId)
-            .orElseThrow(() -> new RuntimeException("El evento no existe en la base de datos local"));
+            .orElseThrow(() -> new RuntimeException("El evento no existe"));
 
-        List<AsientoDTO> mapaActual = proxyService.obtenerAsientos(eventoId);
+        List<AsientoDTO> ocupados = proxyService.obtenerAsientos(eventoId);
+        if (ocupados == null) ocupados = new ArrayList<>();
 
-        Optional<AsientoDTO> asientoDeseado = mapaActual.stream()
+        Optional<AsientoDTO> asientoDeseado = ocupados.stream()
             .filter(a -> a.getFila() == fila && a.getColumna() == columna)
             .findFirst();
 
@@ -56,10 +105,8 @@ public class OrquestadorVentaService {
         nuevaVenta.setFechaVenta(Instant.now());
         nuevaVenta.setTotal(evento.getPrecio());
         nuevaVenta.setAsientos("F" + fila + "-C" + columna);
-
         nuevaVenta.setNombreComprador(nombreComprador);
         nuevaVenta.setDniComprador(dniComprador);
-
         nuevaVenta.setEvento(evento);
 
         return ventaRepository.save(nuevaVenta);

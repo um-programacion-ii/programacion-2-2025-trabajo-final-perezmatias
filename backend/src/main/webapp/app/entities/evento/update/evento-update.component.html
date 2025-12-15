@@ -97,6 +97,58 @@
             </div>
           }
         </div>
+
+        @let cantidadFilasRef = editForm.get('cantidadFilas')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_cantidadFilas" jhiTranslate="backendApp.evento.cantidadFilas">Cantidad Filas</label>
+          <input
+            type="number"
+            class="form-control"
+            name="cantidadFilas"
+            id="field_cantidadFilas"
+            data-cy="cantidadFilas"
+            formControlName="cantidadFilas"
+          />
+          @if (cantidadFilasRef.invalid && (cantidadFilasRef.dirty || cantidadFilasRef.touched)) {
+            <div>
+              @if (editForm.get('cantidadFilas')?.errors?.required) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required">Este campo es obligatorio.</small>
+              }
+              <small
+                class="form-text text-danger"
+                [hidden]="!editForm.get('cantidadFilas')?.errors?.number"
+                jhiTranslate="entity.validation.number"
+                >Este campo debe ser un número.</small
+              >
+            </div>
+          }
+        </div>
+
+        @let cantidadColumnasRef = editForm.get('cantidadColumnas')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_cantidadColumnas" jhiTranslate="backendApp.evento.cantidadColumnas">Cantidad Columnas</label>
+          <input
+            type="number"
+            class="form-control"
+            name="cantidadColumnas"
+            id="field_cantidadColumnas"
+            data-cy="cantidadColumnas"
+            formControlName="cantidadColumnas"
+          />
+          @if (cantidadColumnasRef.invalid && (cantidadColumnasRef.dirty || cantidadColumnasRef.touched)) {
+            <div>
+              @if (editForm.get('cantidadColumnas')?.errors?.required) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required">Este campo es obligatorio.</small>
+              }
+              <small
+                class="form-text text-danger"
+                [hidden]="!editForm.get('cantidadColumnas')?.errors?.number"
+                jhiTranslate="entity.validation.number"
+                >Este campo debe ser un número.</small
+              >
+            </div>
+          }
+        </div>
       </div>
 
       <div>
