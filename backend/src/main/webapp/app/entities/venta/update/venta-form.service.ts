@@ -34,8 +34,9 @@ type VentaFormGroupContent = {
   fechaVenta: FormControl<VentaFormRawValue['fechaVenta']>;
   total: FormControl<VentaFormRawValue['total']>;
   asientos: FormControl<VentaFormRawValue['asientos']>;
+  nombreComprador: FormControl<VentaFormRawValue['nombreComprador']>;
+  dniComprador: FormControl<VentaFormRawValue['dniComprador']>;
   evento: FormControl<VentaFormRawValue['evento']>;
-  user: FormControl<VentaFormRawValue['user']>;
 };
 
 export type VentaFormGroup = FormGroup<VentaFormGroupContent>;
@@ -64,10 +65,13 @@ export class VentaFormService {
       asientos: new FormControl(ventaRawValue.asientos, {
         validators: [Validators.required],
       }),
-      evento: new FormControl(ventaRawValue.evento, {
+      nombreComprador: new FormControl(ventaRawValue.nombreComprador, {
         validators: [Validators.required],
       }),
-      user: new FormControl(ventaRawValue.user, {
+      dniComprador: new FormControl(ventaRawValue.dniComprador, {
+        validators: [Validators.required],
+      }),
+      evento: new FormControl(ventaRawValue.evento, {
         validators: [Validators.required],
       }),
     });

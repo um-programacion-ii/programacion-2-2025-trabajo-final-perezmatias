@@ -14,9 +14,6 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface VentaRepository extends JpaRepository<Venta, Long> {
-    @Query("select venta from Venta venta where venta.user.login = ?#{authentication.name}")
-    List<Venta> findByUserIsCurrentUser();
-
     default Optional<Venta> findOneWithEagerRelationships(Long id) {
         return this.findOneWithToOneRelationships(id);
     }
@@ -29,15 +26,12 @@ public interface VentaRepository extends JpaRepository<Venta, Long> {
         return this.findAllWithToOneRelationships(pageable);
     }
 
-    @Query(
-        value = "select venta from Venta venta left join fetch venta.evento left join fetch venta.user",
-        countQuery = "select count(venta) from Venta venta"
-    )
+    @Query(value = "select venta from Venta venta left join fetch venta.evento", countQuery = "select count(venta) from Venta venta")
     Page<Venta> findAllWithToOneRelationships(Pageable pageable);
 
-    @Query("select venta from Venta venta left join fetch venta.evento left join fetch venta.user")
+    @Query("select venta from Venta venta left join fetch venta.evento")
     List<Venta> findAllWithToOneRelationships();
 
-    @Query("select venta from Venta venta left join fetch venta.evento left join fetch venta.user where venta.id =:id")
+    @Query("select venta from Venta venta left join fetch venta.evento where venta.id =:id")
     Optional<Venta> findOneWithToOneRelationships(@Param("id") Long id);
 }

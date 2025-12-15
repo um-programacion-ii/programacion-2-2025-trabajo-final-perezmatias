@@ -37,13 +37,17 @@ public class Venta implements Serializable {
     @Column(name = "asientos", nullable = false)
     private String asientos;
 
-    @ManyToOne(optional = false)
     @NotNull
-    private Evento evento;
+    @Column(name = "nombre_comprador", nullable = false)
+    private String nombreComprador;
+
+    @NotNull
+    @Column(name = "dni_comprador", nullable = false)
+    private String dniComprador;
 
     @ManyToOne(optional = false)
     @NotNull
-    private User user;
+    private Evento evento;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -99,6 +103,32 @@ public class Venta implements Serializable {
         this.asientos = asientos;
     }
 
+    public String getNombreComprador() {
+        return this.nombreComprador;
+    }
+
+    public Venta nombreComprador(String nombreComprador) {
+        this.setNombreComprador(nombreComprador);
+        return this;
+    }
+
+    public void setNombreComprador(String nombreComprador) {
+        this.nombreComprador = nombreComprador;
+    }
+
+    public String getDniComprador() {
+        return this.dniComprador;
+    }
+
+    public Venta dniComprador(String dniComprador) {
+        this.setDniComprador(dniComprador);
+        return this;
+    }
+
+    public void setDniComprador(String dniComprador) {
+        this.dniComprador = dniComprador;
+    }
+
     public Evento getEvento() {
         return this.evento;
     }
@@ -109,19 +139,6 @@ public class Venta implements Serializable {
 
     public Venta evento(Evento evento) {
         this.setEvento(evento);
-        return this;
-    }
-
-    public User getUser() {
-        return this.user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public Venta user(User user) {
-        this.setUser(user);
         return this;
     }
 
@@ -152,6 +169,8 @@ public class Venta implements Serializable {
             ", fechaVenta='" + getFechaVenta() + "'" +
             ", total=" + getTotal() +
             ", asientos='" + getAsientos() + "'" +
+            ", nombreComprador='" + getNombreComprador() + "'" +
+            ", dniComprador='" + getDniComprador() + "'" +
             "}";
     }
 }

@@ -50,7 +50,9 @@ public class VentaAsserts {
             .as("Verify Venta relevant properties")
             .satisfies(a -> assertThat(a.getFechaVenta()).as("check fechaVenta").isEqualTo(expected.getFechaVenta()))
             .satisfies(a -> assertThat(a.getTotal()).as("check total").usingComparator(bigDecimalCompareTo).isEqualTo(expected.getTotal()))
-            .satisfies(a -> assertThat(a.getAsientos()).as("check asientos").isEqualTo(expected.getAsientos()));
+            .satisfies(a -> assertThat(a.getAsientos()).as("check asientos").isEqualTo(expected.getAsientos()))
+            .satisfies(a -> assertThat(a.getNombreComprador()).as("check nombreComprador").isEqualTo(expected.getNombreComprador()))
+            .satisfies(a -> assertThat(a.getDniComprador()).as("check dniComprador").isEqualTo(expected.getDniComprador()));
     }
 
     /**

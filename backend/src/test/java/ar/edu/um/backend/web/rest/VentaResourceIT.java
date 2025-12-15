@@ -11,9 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import ar.edu.um.backend.IntegrationTest;
 import ar.edu.um.backend.domain.Evento;
-import ar.edu.um.backend.domain.User;
 import ar.edu.um.backend.domain.Venta;
-import ar.edu.um.backend.repository.UserRepository;
 import ar.edu.um.backend.repository.VentaRepository;
 import ar.edu.um.backend.service.VentaService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -57,6 +55,12 @@ class VentaResourceIT {
     private static final String DEFAULT_ASIENTOS = "AAAAAAAAAA";
     private static final String UPDATED_ASIENTOS = "BBBBBBBBBB";
 
+    private static final String DEFAULT_NOMBRE_COMPRADOR = "AAAAAAAAAA";
+    private static final String UPDATED_NOMBRE_COMPRADOR = "BBBBBBBBBB";
+
+    private static final String DEFAULT_DNI_COMPRADOR = "AAAAAAAAAA";
+    private static final String UPDATED_DNI_COMPRADOR = "BBBBBBBBBB";
+
     private static final String ENTITY_API_URL = "/api/ventas";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
 
@@ -68,9 +72,6 @@ class VentaResourceIT {
 
     @Autowired
     private VentaRepository ventaRepository;
-
-    @Autowired
-    private UserRepository userRepository;
 
     @Mock
     private VentaRepository ventaRepositoryMock;
@@ -95,7 +96,12 @@ class VentaResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static Venta createEntity(EntityManager em) {
-        Venta venta = new Venta().fechaVenta(DEFAULT_FECHA_VENTA).total(DEFAULT_TOTAL).asientos(DEFAULT_ASIENTOS);
+        Venta venta = new Venta()
+            .fechaVenta(DEFAULT_FECHA_VENTA)
+            .total(DEFAULT_TOTAL)
+            .asientos(DEFAULT_ASIENTOS)
+            .nombreComprador(DEFAULT_NOMBRE_COMPRADOR)
+            .dniComprador(DEFAULT_DNI_COMPRADOR);
         // Add required entity
         Evento evento;
         if (TestUtil.findAll(em, Evento.class).isEmpty()) {
@@ -106,11 +112,6 @@ class VentaResourceIT {
             evento = TestUtil.findAll(em, Evento.class).get(0);
         }
         venta.setEvento(evento);
-        // Add required entity
-        User user = UserResourceIT.createEntity();
-        em.persist(user);
-        em.flush();
-        venta.setUser(user);
         return venta;
     }
 
@@ -121,7 +122,12 @@ class VentaResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static Venta createUpdatedEntity(EntityManager em) {
-        Venta updatedVenta = new Venta().fechaVenta(UPDATED_FECHA_VENTA).total(UPDATED_TOTAL).asientos(UPDATED_ASIENTOS);
+        Venta updatedVenta = new Venta()
+            .fechaVenta(UPDATED_FECHA_VENTA)
+            .total(UPDATED_TOTAL)
+            .asientos(UPDATED_ASIENTOS)
+            .nombreComprador(UPDATED_NOMBRE_COMPRADOR)
+            .dniComprador(UPDATED_DNI_COMPRADOR);
         // Add required entity
         Evento evento;
         if (TestUtil.findAll(em, Evento.class).isEmpty()) {
@@ -132,11 +138,6 @@ class VentaResourceIT {
             evento = TestUtil.findAll(em, Evento.class).get(0);
         }
         updatedVenta.setEvento(evento);
-        // Add required entity
-        User user = UserResourceIT.createEntity();
-        em.persist(user);
-        em.flush();
-        updatedVenta.setUser(user);
         return updatedVenta;
     }
 
@@ -242,6 +243,38 @@ class VentaResourceIT {
 
     @Test
     @Transactional
+    void checkNombreCompradorIsRequired() throws Exception {
+        long databaseSizeBeforeTest = getRepositoryCount();
+        // set the field null
+        venta.setNombreComprador(null);
+
+        // Create the Venta, which fails.
+
+        restVentaMockMvc
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(venta)))
+            .andExpect(status().isBadRequest());
+
+        assertSameRepositoryCount(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
+    void checkDniCompradorIsRequired() throws Exception {
+        long databaseSizeBeforeTest = getRepositoryCount();
+        // set the field null
+        venta.setDniComprador(null);
+
+        // Create the Venta, which fails.
+
+        restVentaMockMvc
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(venta)))
+            .andExpect(status().isBadRequest());
+
+        assertSameRepositoryCount(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
     void getAllVentas() throws Exception {
         // Initialize the database
         insertedVenta = ventaRepository.saveAndFlush(venta);
@@ -254,7 +287,9 @@ class VentaResourceIT {
             .andExpect(jsonPath("$.[*].id").value(hasItem(venta.getId().intValue())))
             .andExpect(jsonPath("$.[*].fechaVenta").value(hasItem(DEFAULT_FECHA_VENTA.toString())))
             .andExpect(jsonPath("$.[*].total").value(hasItem(sameNumber(DEFAULT_TOTAL))))
-            .andExpect(jsonPath("$.[*].asientos").value(hasItem(DEFAULT_ASIENTOS)));
+            .andExpect(jsonPath("$.[*].asientos").value(hasItem(DEFAULT_ASIENTOS)))
+            .andExpect(jsonPath("$.[*].nombreComprador").value(hasItem(DEFAULT_NOMBRE_COMPRADOR)))
+            .andExpect(jsonPath("$.[*].dniComprador").value(hasItem(DEFAULT_DNI_COMPRADOR)));
     }
 
     @SuppressWarnings({ "unchecked" })
@@ -288,7 +323,9 @@ class VentaResourceIT {
             .andExpect(jsonPath("$.id").value(venta.getId().intValue()))
             .andExpect(jsonPath("$.fechaVenta").value(DEFAULT_FECHA_VENTA.toString()))
             .andExpect(jsonPath("$.total").value(sameNumber(DEFAULT_TOTAL)))
-            .andExpect(jsonPath("$.asientos").value(DEFAULT_ASIENTOS));
+            .andExpect(jsonPath("$.asientos").value(DEFAULT_ASIENTOS))
+            .andExpect(jsonPath("$.nombreComprador").value(DEFAULT_NOMBRE_COMPRADOR))
+            .andExpect(jsonPath("$.dniComprador").value(DEFAULT_DNI_COMPRADOR));
     }
 
     @Test
@@ -310,7 +347,12 @@ class VentaResourceIT {
         Venta updatedVenta = ventaRepository.findById(venta.getId()).orElseThrow();
         // Disconnect from session so that the updates on updatedVenta are not directly saved in db
         em.detach(updatedVenta);
-        updatedVenta.fechaVenta(UPDATED_FECHA_VENTA).total(UPDATED_TOTAL).asientos(UPDATED_ASIENTOS);
+        updatedVenta
+            .fechaVenta(UPDATED_FECHA_VENTA)
+            .total(UPDATED_TOTAL)
+            .asientos(UPDATED_ASIENTOS)
+            .nombreComprador(UPDATED_NOMBRE_COMPRADOR)
+            .dniComprador(UPDATED_DNI_COMPRADOR);
 
         restVentaMockMvc
             .perform(
@@ -386,6 +428,8 @@ class VentaResourceIT {
         Venta partialUpdatedVenta = new Venta();
         partialUpdatedVenta.setId(venta.getId());
 
+        partialUpdatedVenta.nombreComprador(UPDATED_NOMBRE_COMPRADOR).dniComprador(UPDATED_DNI_COMPRADOR);
+
         restVentaMockMvc
             .perform(
                 patch(ENTITY_API_URL_ID, partialUpdatedVenta.getId())
@@ -412,7 +456,12 @@ class VentaResourceIT {
         Venta partialUpdatedVenta = new Venta();
         partialUpdatedVenta.setId(venta.getId());
 
-        partialUpdatedVenta.fechaVenta(UPDATED_FECHA_VENTA).total(UPDATED_TOTAL).asientos(UPDATED_ASIENTOS);
+        partialUpdatedVenta
+            .fechaVenta(UPDATED_FECHA_VENTA)
+            .total(UPDATED_TOTAL)
+            .asientos(UPDATED_ASIENTOS)
+            .nombreComprador(UPDATED_NOMBRE_COMPRADOR)
+            .dniComprador(UPDATED_DNI_COMPRADOR);
 
         restVentaMockMvc
             .perform(

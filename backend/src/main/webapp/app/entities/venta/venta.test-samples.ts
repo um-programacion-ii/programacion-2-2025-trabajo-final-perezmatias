@@ -7,6 +7,8 @@ export const sampleWithRequiredData: IVenta = {
   fechaVenta: dayjs('2025-12-11T05:52'),
   total: 8279.35,
   asientos: 'aha shark ah',
+  nombreComprador: 'hyena forenenst',
+  dniComprador: 'crazy zowie',
 };
 
 export const sampleWithPartialData: IVenta = {
@@ -14,6 +16,8 @@ export const sampleWithPartialData: IVenta = {
   fechaVenta: dayjs('2025-12-11T20:44'),
   total: 25583.9,
   asientos: 'blah',
+  nombreComprador: 'successfully throughout',
+  dniComprador: 'who what',
 };
 
 export const sampleWithFullData: IVenta = {
@@ -21,12 +25,16 @@ export const sampleWithFullData: IVenta = {
   fechaVenta: dayjs('2025-12-11T18:43'),
   total: 31981.07,
   asientos: 'misjudge duh',
+  nombreComprador: 'fluff abacus well-to-do',
+  dniComprador: 'over great ack',
 };
 
 export const sampleWithNewData: NewVenta = {
   fechaVenta: dayjs('2025-12-11T01:48'),
   total: 17775.18,
   asientos: 'ashamed',
+  nombreComprador: 'athletic',
+  dniComprador: 'throbbing meanwhile limply',
   id: null,
 };
 

@@ -20,13 +20,16 @@ public class CompraResource {
     public ResponseEntity<?> realizarCompra(@RequestBody CompraDTO compra) {
         try {
 
-            String usuarioActual = "admin";
+            if (compra.getNombre() == null || compra.getDni() == null) {
+                return ResponseEntity.badRequest().body("❌ Faltan datos del comprador (Nombre o DNI)");
+            }
 
             Venta venta = orquestadorService.comprarEntrada(
                 compra.getEventoId(),
                 compra.getFila(),
                 compra.getColumna(),
-                usuarioActual
+                compra.getNombre(),
+                compra.getDni()
             );
 
             return ResponseEntity.ok(venta);

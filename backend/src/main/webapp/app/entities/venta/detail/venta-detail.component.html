@@ -27,6 +27,14 @@
           <dd>
             <span>{{ ventaRef.asientos }}</span>
           </dd>
+          <dt><span jhiTranslate="backendApp.venta.nombreComprador">Nombre Comprador</span></dt>
+          <dd>
+            <span>{{ ventaRef.nombreComprador }}</span>
+          </dd>
+          <dt><span jhiTranslate="backendApp.venta.dniComprador">Dni Comprador</span></dt>
+          <dd>
+            <span>{{ ventaRef.dniComprador }}</span>
+          </dd>
           <dt><span jhiTranslate="backendApp.venta.evento">Evento</span></dt>
           <dd>
             @if (venta()!.evento) {
@@ -34,10 +42,6 @@
                 <a [routerLink]="['/evento', venta()!.evento?.id, 'view']">{{ ventaRef.evento?.titulo }}</a>
               </div>
             }
-          </dd>
-          <dt><span jhiTranslate="backendApp.venta.user">User</span></dt>
-          <dd>
-            <span>{{ ventaRef.user?.login }}</span>
           </dd>
         </dl>
 

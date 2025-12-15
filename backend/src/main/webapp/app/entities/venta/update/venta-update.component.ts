@@ -9,10 +9,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { IEvento } from 'app/entities/evento/evento.model';
 import { EventoService } from 'app/entities/evento/service/evento.service';
-import { IUser } from 'app/entities/user/user.model';
-import { UserService } from 'app/entities/user/service/user.service';
-import { VentaService } from '../service/venta.service';
 import { IVenta } from '../venta.model';
+import { VentaService } from '../service/venta.service';
 import { VentaFormGroup, VentaFormService } from './venta-form.service';
 
 @Component({
@@ -25,20 +23,16 @@ export class VentaUpdateComponent implements OnInit {
   venta: IVenta | null = null;
 
   eventosSharedCollection: IEvento[] = [];
-  usersSharedCollection: IUser[] = [];
 
   protected ventaService = inject(VentaService);
   protected ventaFormService = inject(VentaFormService);
   protected eventoService = inject(EventoService);
-  protected userService = inject(UserService);
   protected activatedRoute = inject(ActivatedRoute);
 
   // eslint-disable-next-line @typescript-eslint/member-ordering
   editForm: VentaFormGroup = this.ventaFormService.createVentaFormGroup();
 
   compareEvento = (o1: IEvento | null, o2: IEvento | null): boolean => this.eventoService.compareEvento(o1, o2);
-
-  compareUser = (o1: IUser | null, o2: IUser | null): boolean => this.userService.compareUser(o1, o2);
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ venta }) => {
@@ -89,7 +83,6 @@ export class VentaUpdateComponent implements OnInit {
     this.ventaFormService.resetForm(this.editForm, venta);
 
     this.eventosSharedCollection = this.eventoService.addEventoToCollectionIfMissing<IEvento>(this.eventosSharedCollection, venta.evento);
-    this.usersSharedCollection = this.userService.addUserToCollectionIfMissing<IUser>(this.usersSharedCollection, venta.user);
   }
 
   protected loadRelationshipsOptions(): void {
@@ -98,11 +91,5 @@ export class VentaUpdateComponent implements OnInit {
       .pipe(map((res: HttpResponse<IEvento[]>) => res.body ?? []))
       .pipe(map((eventos: IEvento[]) => this.eventoService.addEventoToCollectionIfMissing<IEvento>(eventos, this.venta?.evento)))
       .subscribe((eventos: IEvento[]) => (this.eventosSharedCollection = eventos));
-
-    this.userService
-      .query()
-      .pipe(map((res: HttpResponse<IUser[]>) => res.body ?? []))
-      .pipe(map((users: IUser[]) => this.userService.addUserToCollectionIfMissing<IUser>(users, this.venta?.user)))
-      .subscribe((users: IUser[]) => (this.usersSharedCollection = users));
   }
 }

@@ -61,15 +61,23 @@
                 <fa-icon class="p-1" icon="sort"></fa-icon>
               </div>
             </th>
-            <th scope="col" jhiSortBy="evento.titulo">
+            <th scope="col" jhiSortBy="nombreComprador">
               <div class="d-flex">
-                <span jhiTranslate="backendApp.venta.evento">Evento</span>
+                <span jhiTranslate="backendApp.venta.nombreComprador">Nombre Comprador</span>
+
                 <fa-icon class="p-1" icon="sort"></fa-icon>
               </div>
             </th>
-            <th scope="col" jhiSortBy="user.login">
+            <th scope="col" jhiSortBy="dniComprador">
               <div class="d-flex">
-                <span jhiTranslate="backendApp.venta.user">User</span>
+                <span jhiTranslate="backendApp.venta.dniComprador">Dni Comprador</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="evento.titulo">
+              <div class="d-flex">
+                <span jhiTranslate="backendApp.venta.evento">Evento</span>
                 <fa-icon class="p-1" icon="sort"></fa-icon>
               </div>
             </th>
@@ -85,15 +93,14 @@
               <td>{{ venta.fechaVenta | formatMediumDatetime }}</td>
               <td>{{ venta.total }}</td>
               <td>{{ venta.asientos }}</td>
+              <td>{{ venta.nombreComprador }}</td>
+              <td>{{ venta.dniComprador }}</td>
               <td>
                 @if (venta.evento) {
                   <div>
                     <a [routerLink]="['/evento', venta.evento.id, 'view']">{{ venta.evento.titulo }}</a>
                   </div>
                 }
-              </td>
-              <td>
-                {{ venta.user?.login }}
               </td>
               <td class="text-end">
                 <div class="btn-group">
