@@ -1,4 +1,4 @@
-// --- DEFINICIÓN DE EVENTO ---
+// --- DEFINICIÓN DE EVENTO (Queda igual) ---
 entity Evento {
     titulo String required,
     descripcion String,
@@ -7,21 +7,20 @@ entity Evento {
     precio BigDecimal required min(0)
 }
 
-// --- DEFINICIÓN DE VENTA ---
+// --- DEFINICIÓN DE VENTA (MODIFICADA) ---
 entity Venta {
     fechaVenta Instant required,
     total BigDecimal required min(0),
-    asientos String required
+    asientos String required,
+    // Nuevos campos para identificar al comprador sin login
+    nombreComprador String required,
+    dniComprador String required
 }
 
-// --- RELACIONES NORMALES ---
+// --- RELACIONES ---
 relationship ManyToOne {
     Venta{evento(titulo) required} to Evento
-}
-
-// --- RELACIÓN CON USUARIO (Sintaxis Especial) ---
-relationship ManyToOne {
-    Venta{user(login) required} to User with builtInEntity
+    // NOTA: Hemos eliminado la relación "Venta -> User"
 }
 
 // --- CONFIGURACIÓN ---

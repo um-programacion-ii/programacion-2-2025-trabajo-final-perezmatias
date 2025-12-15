@@ -78,6 +78,46 @@
           }
         </div>
 
+        @let nombreCompradorRef = editForm.get('nombreComprador')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_nombreComprador" jhiTranslate="backendApp.venta.nombreComprador">Nombre Comprador</label>
+          <input
+            type="text"
+            class="form-control"
+            name="nombreComprador"
+            id="field_nombreComprador"
+            data-cy="nombreComprador"
+            formControlName="nombreComprador"
+          />
+          @if (nombreCompradorRef.invalid && (nombreCompradorRef.dirty || nombreCompradorRef.touched)) {
+            <div>
+              @if (editForm.get('nombreComprador')?.errors?.required) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required">Este campo es obligatorio.</small>
+              }
+            </div>
+          }
+        </div>
+
+        @let dniCompradorRef = editForm.get('dniComprador')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_dniComprador" jhiTranslate="backendApp.venta.dniComprador">Dni Comprador</label>
+          <input
+            type="text"
+            class="form-control"
+            name="dniComprador"
+            id="field_dniComprador"
+            data-cy="dniComprador"
+            formControlName="dniComprador"
+          />
+          @if (dniCompradorRef.invalid && (dniCompradorRef.dirty || dniCompradorRef.touched)) {
+            <div>
+              @if (editForm.get('dniComprador')?.errors?.required) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required">Este campo es obligatorio.</small>
+              }
+            </div>
+          }
+        </div>
+
         <div class="mb-3">
           <label class="form-label" for="field_evento" jhiTranslate="backendApp.venta.evento">Evento</label>
           <select
@@ -99,25 +139,6 @@
         @if (editForm.get(['evento'])!.invalid && (editForm.get(['evento'])!.dirty || editForm.get(['evento'])!.touched)) {
           <div>
             @if (editForm.get(['evento'])?.errors?.required) {
-              <small class="form-text text-danger" jhiTranslate="entity.validation.required">Este campo es obligatorio.</small>
-            }
-          </div>
-        }
-
-        <div class="mb-3">
-          <label class="form-label" for="field_user" jhiTranslate="backendApp.venta.user">User</label>
-          <select class="form-control" id="field_user" data-cy="user" name="user" formControlName="user" [compareWith]="compareUser">
-            @if (!editForm.get('user')!.value) {
-              <option [ngValue]="null" selected></option>
-            }
-            @for (userOption of usersSharedCollection; track $index) {
-              <option [ngValue]="userOption">{{ userOption.login }}</option>
-            }
-          </select>
-        </div>
-        @if (editForm.get(['user'])!.invalid && (editForm.get(['user'])!.dirty || editForm.get(['user'])!.touched)) {
-          <div>
-            @if (editForm.get(['user'])?.errors?.required) {
               <small class="form-text text-danger" jhiTranslate="entity.validation.required">Este campo es obligatorio.</small>
             }
           </div>

@@ -19,6 +19,16 @@
       "fieldName": "asientos",
       "fieldType": "String",
       "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "nombreComprador",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "dniComprador",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
     }
   ],
   "name": "Venta",
@@ -31,15 +41,6 @@
       "relationshipSide": "left",
       "relationshipType": "many-to-one",
       "relationshipValidateRules": "required"
-    },
-    {
-      "otherEntityField": "login",
-      "otherEntityName": "user",
-      "relationshipName": "user",
-      "relationshipSide": "left",
-      "relationshipType": "many-to-one",
-      "relationshipValidateRules": "required",
-      "relationshipWithBuiltInEntity": true
     }
   ],
   "searchEngine": "no",

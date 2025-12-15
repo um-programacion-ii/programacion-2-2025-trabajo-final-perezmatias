@@ -6,10 +6,8 @@ import { Subject, from, of } from 'rxjs';
 
 import { IEvento } from 'app/entities/evento/evento.model';
 import { EventoService } from 'app/entities/evento/service/evento.service';
-import { IUser } from 'app/entities/user/user.model';
-import { UserService } from 'app/entities/user/service/user.service';
-import { IVenta } from '../venta.model';
 import { VentaService } from '../service/venta.service';
+import { IVenta } from '../venta.model';
 import { VentaFormService } from './venta-form.service';
 
 import { VentaUpdateComponent } from './venta-update.component';
@@ -21,7 +19,6 @@ describe('Venta Management Update Component', () => {
   let ventaFormService: VentaFormService;
   let ventaService: VentaService;
   let eventoService: EventoService;
-  let userService: UserService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -45,7 +42,6 @@ describe('Venta Management Update Component', () => {
     ventaFormService = TestBed.inject(VentaFormService);
     ventaService = TestBed.inject(VentaService);
     eventoService = TestBed.inject(EventoService);
-    userService = TestBed.inject(UserService);
 
     comp = fixture.componentInstance;
   });
@@ -73,40 +69,15 @@ describe('Venta Management Update Component', () => {
       expect(comp.eventosSharedCollection).toEqual(expectedCollection);
     });
 
-    it('should call User query and add missing value', () => {
-      const venta: IVenta = { id: 27589 };
-      const user: IUser = { id: 3944 };
-      venta.user = user;
-
-      const userCollection: IUser[] = [{ id: 3944 }];
-      jest.spyOn(userService, 'query').mockReturnValue(of(new HttpResponse({ body: userCollection })));
-      const additionalUsers = [user];
-      const expectedCollection: IUser[] = [...additionalUsers, ...userCollection];
-      jest.spyOn(userService, 'addUserToCollectionIfMissing').mockReturnValue(expectedCollection);
-
-      activatedRoute.data = of({ venta });
-      comp.ngOnInit();
-
-      expect(userService.query).toHaveBeenCalled();
-      expect(userService.addUserToCollectionIfMissing).toHaveBeenCalledWith(
-        userCollection,
-        ...additionalUsers.map(expect.objectContaining),
-      );
-      expect(comp.usersSharedCollection).toEqual(expectedCollection);
-    });
-
     it('should update editForm', () => {
       const venta: IVenta = { id: 27589 };
       const evento: IEvento = { id: 11280 };
       venta.evento = evento;
-      const user: IUser = { id: 3944 };
-      venta.user = user;
 
       activatedRoute.data = of({ venta });
       comp.ngOnInit();
 
       expect(comp.eventosSharedCollection).toContainEqual(evento);
-      expect(comp.usersSharedCollection).toContainEqual(user);
       expect(comp.venta).toEqual(venta);
     });
   });
@@ -187,16 +158,6 @@ describe('Venta Management Update Component', () => {
         jest.spyOn(eventoService, 'compareEvento');
         comp.compareEvento(entity, entity2);
         expect(eventoService.compareEvento).toHaveBeenCalledWith(entity, entity2);
-      });
-    });
-
-    describe('compareUser', () => {
-      it('should forward to userService', () => {
-        const entity = { id: 3944 };
-        const entity2 = { id: 6275 };
-        jest.spyOn(userService, 'compareUser');
-        comp.compareUser(entity, entity2);
-        expect(userService.compareUser).toHaveBeenCalledWith(entity, entity2);
       });
     });
   });

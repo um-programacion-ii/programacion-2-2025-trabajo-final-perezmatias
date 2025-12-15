@@ -23,8 +23,9 @@ describe('Venta Form Service', () => {
             fechaVenta: expect.any(Object),
             total: expect.any(Object),
             asientos: expect.any(Object),
+            nombreComprador: expect.any(Object),
+            dniComprador: expect.any(Object),
             evento: expect.any(Object),
-            user: expect.any(Object),
           }),
         );
       });
@@ -38,8 +39,9 @@ describe('Venta Form Service', () => {
             fechaVenta: expect.any(Object),
             total: expect.any(Object),
             asientos: expect.any(Object),
+            nombreComprador: expect.any(Object),
+            dniComprador: expect.any(Object),
             evento: expect.any(Object),
-            user: expect.any(Object),
           }),
         );
       });

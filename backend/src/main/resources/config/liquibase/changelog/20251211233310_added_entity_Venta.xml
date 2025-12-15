@@ -23,10 +23,13 @@
             <column name="asientos" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
-            <column name="evento_id" type="bigint">
+            <column name="nombre_comprador" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
-            <column name="user_id" type="bigint">
+            <column name="dni_comprador" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="evento_id" type="bigint">
                 <constraints nullable="false" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
@@ -54,8 +57,9 @@
             <column name="fecha_venta" type="date"/>
             <column name="total" type="numeric"/>
             <column name="asientos" type="string"/>
+            <column name="nombre_comprador" type="string"/>
+            <column name="dni_comprador" type="string"/>
             <column name="evento_id" type="numeric"/>
-            <column name="user_id" type="numeric"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
         </loadData>
     </changeSet>

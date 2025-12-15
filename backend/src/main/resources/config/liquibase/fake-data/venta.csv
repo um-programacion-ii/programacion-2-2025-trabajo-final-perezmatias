@@ -1,11 +1,11 @@
-id;fecha_venta;total;asientos;evento_id;user_id
-1;2025-12-11T18:09:37;8773.89;finally;1;1
-2;2025-12-11T08:26:14;25690.29;but total;2;2
-3;2025-12-11T05:10:20;3173.48;brr poorly overburden;3;2
-4;2025-12-11T16:38:45;23970.08;ick;4;2
-5;2025-12-11T17:33:41;26638.56;pale scamper unless;5;2
-6;2025-12-11T12:04:40;28293.72;including gee;6;2
-7;2025-12-11T20:55:04;20864.65;accidentally dusk verify;7;2
-8;2025-12-11T21:29:42;14268.87;ha;8;1
-9;2025-12-11T02:46:07;27188.77;gosh;9;2
-10;2025-12-11T05:21:08;17043.37;gust behold;10;2
+id;fecha_venta;total;asientos;nombre_comprador;dni_comprador;evento_id
+1;2025-12-11T18:09:37;8773.89;finally;impractical uncomfortable;anti vivacious;1
+2;2025-12-11T14:48:31;7893.68;provided;yum wash;polished notwithstanding subexpression;2
+3;2025-12-11T12:44:48;32085.43;quart on;accidentally dusk verify;under seriously legislature;3
+4;2025-12-11T13:14:38;11507.51;ugh;um proselytise;bookend upwardly;4
+5;2025-12-11T07:03:09;25482.41;lonely whether;vastly never;reckless;5
+6;2025-12-11T09:46:52;14191.69;yet mid following;huff and mild;nervously without pace;6
+7;2025-12-11T05:03:03;32263.67;frankly;swim assail;within irritably;7
+8;2025-12-11T15:44:51;18995.01;hm who eek;shampoo disconnection;carefully before;8
+9;2025-12-11T02:42:07;19949.86;misspend;monocle um;legitimize substantial planula;9
+10;2025-12-11T06:08:12;27793.19;ouch irritably;even ack shallow;capitalize unabashedly slushy;10

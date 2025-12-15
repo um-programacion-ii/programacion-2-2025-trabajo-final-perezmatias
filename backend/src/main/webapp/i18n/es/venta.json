@@ -21,8 +21,9 @@
       "fechaVenta": "Fecha Venta",
       "total": "Total",
       "asientos": "Asientos",
-      "evento": "Evento",
-      "user": "User"
+      "nombreComprador": "Nombre Comprador",
+      "dniComprador": "Dni Comprador",
+      "evento": "Evento"
     }
   }
 }

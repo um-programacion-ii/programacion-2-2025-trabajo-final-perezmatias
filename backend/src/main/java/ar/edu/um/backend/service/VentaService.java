@@ -68,6 +68,12 @@ public class VentaService {
                 if (venta.getAsientos() != null) {
                     existingVenta.setAsientos(venta.getAsientos());
                 }
+                if (venta.getNombreComprador() != null) {
+                    existingVenta.setNombreComprador(venta.getNombreComprador());
+                }
+                if (venta.getDniComprador() != null) {
+                    existingVenta.setDniComprador(venta.getDniComprador());
+                }
 
                 return existingVenta;
             })
