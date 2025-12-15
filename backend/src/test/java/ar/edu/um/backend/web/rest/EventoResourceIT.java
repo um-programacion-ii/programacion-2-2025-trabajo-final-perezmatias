@@ -51,6 +51,12 @@ class EventoResourceIT {
     private static final BigDecimal DEFAULT_PRECIO = new BigDecimal(0);
     private static final BigDecimal UPDATED_PRECIO = new BigDecimal(1);
 
+    private static final Integer DEFAULT_CANTIDAD_FILAS = 1;
+    private static final Integer UPDATED_CANTIDAD_FILAS = 2;
+
+    private static final Integer DEFAULT_CANTIDAD_COLUMNAS = 1;
+    private static final Integer UPDATED_CANTIDAD_COLUMNAS = 2;
+
     private static final String ENTITY_API_URL = "/api/eventos";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
 
@@ -85,7 +91,9 @@ class EventoResourceIT {
             .descripcion(DEFAULT_DESCRIPCION)
             .fechaHora(DEFAULT_FECHA_HORA)
             .ubicacion(DEFAULT_UBICACION)
-            .precio(DEFAULT_PRECIO);
+            .precio(DEFAULT_PRECIO)
+            .cantidadFilas(DEFAULT_CANTIDAD_FILAS)
+            .cantidadColumnas(DEFAULT_CANTIDAD_COLUMNAS);
     }
 
     /**
@@ -100,7 +108,9 @@ class EventoResourceIT {
             .descripcion(UPDATED_DESCRIPCION)
             .fechaHora(UPDATED_FECHA_HORA)
             .ubicacion(UPDATED_UBICACION)
-            .precio(UPDATED_PRECIO);
+            .precio(UPDATED_PRECIO)
+            .cantidadFilas(UPDATED_CANTIDAD_FILAS)
+            .cantidadColumnas(UPDATED_CANTIDAD_COLUMNAS);
     }
 
     @BeforeEach
@@ -205,6 +215,38 @@ class EventoResourceIT {
 
     @Test
     @Transactional
+    void checkCantidadFilasIsRequired() throws Exception {
+        long databaseSizeBeforeTest = getRepositoryCount();
+        // set the field null
+        evento.setCantidadFilas(null);
+
+        // Create the Evento, which fails.
+
+        restEventoMockMvc
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(evento)))
+            .andExpect(status().isBadRequest());
+
+        assertSameRepositoryCount(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
+    void checkCantidadColumnasIsRequired() throws Exception {
+        long databaseSizeBeforeTest = getRepositoryCount();
+        // set the field null
+        evento.setCantidadColumnas(null);
+
+        // Create the Evento, which fails.
+
+        restEventoMockMvc
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(evento)))
+            .andExpect(status().isBadRequest());
+
+        assertSameRepositoryCount(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
     void getAllEventos() throws Exception {
         // Initialize the database
         insertedEvento = eventoRepository.saveAndFlush(evento);
@@ -219,7 +261,9 @@ class EventoResourceIT {
             .andExpect(jsonPath("$.[*].descripcion").value(hasItem(DEFAULT_DESCRIPCION)))
             .andExpect(jsonPath("$.[*].fechaHora").value(hasItem(DEFAULT_FECHA_HORA.toString())))
             .andExpect(jsonPath("$.[*].ubicacion").value(hasItem(DEFAULT_UBICACION)))
-            .andExpect(jsonPath("$.[*].precio").value(hasItem(sameNumber(DEFAULT_PRECIO))));
+            .andExpect(jsonPath("$.[*].precio").value(hasItem(sameNumber(DEFAULT_PRECIO))))
+            .andExpect(jsonPath("$.[*].cantidadFilas").value(hasItem(DEFAULT_CANTIDAD_FILAS)))
+            .andExpect(jsonPath("$.[*].cantidadColumnas").value(hasItem(DEFAULT_CANTIDAD_COLUMNAS)));
     }
 
     @Test
@@ -238,7 +282,9 @@ class EventoResourceIT {
             .andExpect(jsonPath("$.descripcion").value(DEFAULT_DESCRIPCION))
             .andExpect(jsonPath("$.fechaHora").value(DEFAULT_FECHA_HORA.toString()))
             .andExpect(jsonPath("$.ubicacion").value(DEFAULT_UBICACION))
-            .andExpect(jsonPath("$.precio").value(sameNumber(DEFAULT_PRECIO)));
+            .andExpect(jsonPath("$.precio").value(sameNumber(DEFAULT_PRECIO)))
+            .andExpect(jsonPath("$.cantidadFilas").value(DEFAULT_CANTIDAD_FILAS))
+            .andExpect(jsonPath("$.cantidadColumnas").value(DEFAULT_CANTIDAD_COLUMNAS));
     }
 
     @Test
@@ -265,7 +311,9 @@ class EventoResourceIT {
             .descripcion(UPDATED_DESCRIPCION)
             .fechaHora(UPDATED_FECHA_HORA)
             .ubicacion(UPDATED_UBICACION)
-            .precio(UPDATED_PRECIO);
+            .precio(UPDATED_PRECIO)
+            .cantidadFilas(UPDATED_CANTIDAD_FILAS)
+            .cantidadColumnas(UPDATED_CANTIDAD_COLUMNAS);
 
         restEventoMockMvc
             .perform(
@@ -341,7 +389,12 @@ class EventoResourceIT {
         Evento partialUpdatedEvento = new Evento();
         partialUpdatedEvento.setId(evento.getId());
 
-        partialUpdatedEvento.descripcion(UPDATED_DESCRIPCION).fechaHora(UPDATED_FECHA_HORA).ubicacion(UPDATED_UBICACION);
+        partialUpdatedEvento
+            .descripcion(UPDATED_DESCRIPCION)
+            .fechaHora(UPDATED_FECHA_HORA)
+            .ubicacion(UPDATED_UBICACION)
+            .cantidadFilas(UPDATED_CANTIDAD_FILAS)
+            .cantidadColumnas(UPDATED_CANTIDAD_COLUMNAS);
 
         restEventoMockMvc
             .perform(
@@ -374,7 +427,9 @@ class EventoResourceIT {
             .descripcion(UPDATED_DESCRIPCION)
             .fechaHora(UPDATED_FECHA_HORA)
             .ubicacion(UPDATED_UBICACION)
-            .precio(UPDATED_PRECIO);
+            .precio(UPDATED_PRECIO)
+            .cantidadFilas(UPDATED_CANTIDAD_FILAS)
+            .cantidadColumnas(UPDATED_CANTIDAD_COLUMNAS);
 
         restEventoMockMvc
             .perform(

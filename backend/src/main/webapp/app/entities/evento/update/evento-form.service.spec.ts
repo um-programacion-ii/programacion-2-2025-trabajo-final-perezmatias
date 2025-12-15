@@ -25,6 +25,8 @@ describe('Evento Form Service', () => {
             fechaHora: expect.any(Object),
             ubicacion: expect.any(Object),
             precio: expect.any(Object),
+            cantidadFilas: expect.any(Object),
+            cantidadColumnas: expect.any(Object),
           }),
         );
       });
@@ -40,6 +42,8 @@ describe('Evento Form Service', () => {
             fechaHora: expect.any(Object),
             ubicacion: expect.any(Object),
             precio: expect.any(Object),
+            cantidadFilas: expect.any(Object),
+            cantidadColumnas: expect.any(Object),
           }),
         );
       });

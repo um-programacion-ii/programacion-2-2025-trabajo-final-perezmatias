@@ -1,22 +1,35 @@
 package ar.edu.um.backend.service.dto;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.math.BigDecimal;
-import java.time.Instant;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class EventoCatedraDTO {
+
     private Long id;
     private String titulo;
     private String descripcion;
 
-    @JsonAlias("fechaHora")
+    @JsonAlias({"fecha", "fechaHora"})
     private String fechaHoraString;
 
+    @JsonAlias({"direccion", "ubicacion"})
     private String ubicacion;
+
+    @JsonAlias("precioEntrada")
     private BigDecimal precio;
+
     private String imagen;
 
-    // Getters y Setters
+    // --- NUEVOS CAMPOS (Dimensiones Reales) ---
+    @JsonAlias("filaAsientos")
+    private Integer cantidadFilas;
+
+    @JsonAlias({"columnAsientos", "columnaAsientos"})
+    private Integer cantidadColumnas;
+
+    // --- Getters y Setters ---
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -37,4 +50,10 @@ public class EventoCatedraDTO {
 
     public String getImagen() { return imagen; }
     public void setImagen(String imagen) { this.imagen = imagen; }
+
+    public Integer getCantidadFilas() { return cantidadFilas; }
+    public void setCantidadFilas(Integer cantidadFilas) { this.cantidadFilas = cantidadFilas; }
+
+    public Integer getCantidadColumnas() { return cantidadColumnas; }
+    public void setCantidadColumnas(Integer cantidadColumnas) { this.cantidadColumnas = cantidadColumnas; }
 }

@@ -35,6 +35,14 @@
           <dd>
             <span>{{ eventoRef.precio }}</span>
           </dd>
+          <dt><span jhiTranslate="backendApp.evento.cantidadFilas">Cantidad Filas</span></dt>
+          <dd>
+            <span>{{ eventoRef.cantidadFilas }}</span>
+          </dd>
+          <dt><span jhiTranslate="backendApp.evento.cantidadColumnas">Cantidad Columnas</span></dt>
+          <dd>
+            <span>{{ eventoRef.cantidadColumnas }}</span>
+          </dd>
         </dl>
 
         <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">

@@ -2,9 +2,12 @@ package ar.edu.um.backend.web.rest;
 
 import ar.edu.um.backend.domain.Venta;
 import ar.edu.um.backend.service.OrquestadorVentaService;
+import ar.edu.um.backend.service.dto.AsientoDTO;
 import ar.edu.um.backend.service.dto.CompraDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -15,6 +18,13 @@ public class CompraResource {
     public CompraResource(OrquestadorVentaService orquestadorService) {
         this.orquestadorService = orquestadorService;
     }
+
+    @GetMapping("/asientos/{eventoId}")
+    public ResponseEntity<List<AsientoDTO>> verAsientos(@PathVariable Long eventoId) {
+        List<AsientoDTO> mapa = orquestadorService.obtenerMapaDeAsientos(eventoId);
+        return ResponseEntity.ok(mapa);
+    }
+
 
     @PostMapping("/comprar")
     public ResponseEntity<?> realizarCompra(@RequestBody CompraDTO compra) {

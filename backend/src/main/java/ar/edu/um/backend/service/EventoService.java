@@ -74,6 +74,12 @@ public class EventoService {
                 if (evento.getPrecio() != null) {
                     existingEvento.setPrecio(evento.getPrecio());
                 }
+                if (evento.getCantidadFilas() != null) {
+                    existingEvento.setCantidadFilas(evento.getCantidadFilas());
+                }
+                if (evento.getCantidadColumnas() != null) {
+                    existingEvento.setCantidadColumnas(evento.getCantidadColumnas());
+                }
 
                 return existingEvento;
             })

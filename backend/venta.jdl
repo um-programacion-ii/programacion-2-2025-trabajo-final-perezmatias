@@ -1,18 +1,20 @@
-// --- DEFINICIÓN DE EVENTO (Queda igual) ---
+// --- DEFINICIÓN DE EVENTO (CON DIMENSIONES) ---
 entity Evento {
     titulo String required,
     descripcion String,
     fechaHora Instant required,
     ubicacion String,
-    precio BigDecimal required min(0)
+    precio BigDecimal required min(0),
+    // Nuevos campos para saber el tamaño del mapa:
+    cantidadFilas Integer required,
+    cantidadColumnas Integer required
 }
 
-// --- DEFINICIÓN DE VENTA (MODIFICADA) ---
+// --- DEFINICIÓN DE VENTA (SIN LOGIN) ---
 entity Venta {
     fechaVenta Instant required,
     total BigDecimal required min(0),
     asientos String required,
-    // Nuevos campos para identificar al comprador sin login
     nombreComprador String required,
     dniComprador String required
 }
@@ -20,7 +22,6 @@ entity Venta {
 // --- RELACIONES ---
 relationship ManyToOne {
     Venta{evento(titulo) required} to Evento
-    // NOTA: Hemos eliminado la relación "Venta -> User"
 }
 
 // --- CONFIGURACIÓN ---
