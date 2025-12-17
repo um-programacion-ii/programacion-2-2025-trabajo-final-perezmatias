@@ -11,6 +11,9 @@ public class VentaMovilDTO {
     private BigDecimal precioVenta;
     private List<AsientoDTO> asientos;
 
+    private String nombreComprador;
+    private String dniComprador;
+
     // Getters y Setters
     public Long getEventoId() { return eventoId; }
     public void setEventoId(Long eventoId) { this.eventoId = eventoId; }
@@ -23,6 +26,12 @@ public class VentaMovilDTO {
 
     public List<AsientoDTO> getAsientos() { return asientos; }
     public void setAsientos(List<AsientoDTO> asientos) { this.asientos = asientos; }
+
+    public String getNombreComprador() { return nombreComprador; }
+    public void setNombreComprador(String nombreComprador) { this.nombreComprador = nombreComprador; }
+
+    public String getDniComprador() { return dniComprador; }
+    public void setDniComprador(String dniComprador) { this.dniComprador = dniComprador; }
 
     public static class AsientoDTO {
         private Integer fila;

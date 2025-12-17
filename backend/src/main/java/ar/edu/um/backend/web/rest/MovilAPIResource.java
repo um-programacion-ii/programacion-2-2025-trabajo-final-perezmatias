@@ -25,6 +25,7 @@ public class MovilAPIResource {
     private final EventoRepository eventoRepository;
     private final VentaRepository ventaRepository;
 
+    // Ya no necesitamos UserRepository porque tu tabla Venta NO usa usuarios del sistema
     public MovilAPIResource(EventoRepository eventoRepository, VentaRepository ventaRepository) {
         this.eventoRepository = eventoRepository;
         this.ventaRepository = ventaRepository;
@@ -46,24 +47,25 @@ public class MovilAPIResource {
         return evento.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
-
     @PostMapping("/bloquear-asientos")
     public ResponseEntity<?> bloquearAsientos(@RequestBody Object bloqueoDTO) {
-        log.info("Simulando bloqueo de asientos: {}", bloqueoDTO);
         return ResponseEntity.ok("{\"resultado\": true, \"descripcion\": \"Asientos bloqueados (SIMULADO)\"}");
     }
 
     @PostMapping("/realizar-venta")
     public ResponseEntity<?> realizarVenta(@RequestBody VentaMovilDTO ventaDTO) {
-        log.debug("Solicitud de venta recibida para evento ID: {}", ventaDTO.getEventoId());
+        log.info("💰 PROCESANDO VENTA - Comprador: {} | DNI: {}", ventaDTO.getNombreComprador(), ventaDTO.getDniComprador());
 
+        // 1. Validar Evento
         Optional<Evento> eventoOp = eventoRepository.findById(ventaDTO.getEventoId());
         if (eventoOp.isEmpty()) {
             return ResponseEntity.badRequest().body("{\"resultado\": false, \"descripcion\": \"Evento no encontrado\"}");
         }
 
+        // 2. Crear la Venta y llenar los campos OBLIGATORIOS de tu entidad
         Venta nuevaVenta = new Venta();
 
+        // Fecha
         if (ventaDTO.getFecha() != null) {
             nuevaVenta.setFechaVenta(ventaDTO.getFecha().toInstant());
         } else {
@@ -73,23 +75,41 @@ public class MovilAPIResource {
         nuevaVenta.setTotal(ventaDTO.getPrecioVenta());
         nuevaVenta.setEvento(eventoOp.get());
 
-        Venta ventaGuardada = ventaRepository.save(nuevaVenta);
+        // --- AQUÍ ESTABA LA CLAVE ---
+        // Llenamos los campos que son @NotNull en tu Venta.java
 
-        log.info("Venta guardada localmente con ID: {}", ventaGuardada.getId());
+        // Nombre del Comprador
+        if (ventaDTO.getNombreComprador() != null) {
+            nuevaVenta.setNombreComprador(ventaDTO.getNombreComprador());
+        } else {
+            nuevaVenta.setNombreComprador("Consumidor Final");
+        }
 
-        return ResponseEntity.ok()
-            .body("{\"resultado\": true, \"ventaId\": " + ventaGuardada.getId() + ", \"descripcion\": \"Venta registrada localmente\"}");
-    }
+        // DNI del Comprador
+        if (ventaDTO.getDniComprador() != null) {
+            nuevaVenta.setDniComprador(ventaDTO.getDniComprador());
+        } else {
+            nuevaVenta.setDniComprador("00000000");
+        }
 
-    @GetMapping("/listar-ventas")
-    public List<Venta> listarVentas() {
-        return ventaRepository.findAll();
-    }
+        // Lista de Asientos (La convertimos a String porque en BD es varchar)
+        if (ventaDTO.getAsientos() != null) {
+            nuevaVenta.setAsientos(ventaDTO.getAsientos().toString());
+        } else {
+            nuevaVenta.setAsientos("[]");
+        }
 
-    @GetMapping("/listar-venta/{id}")
-    public ResponseEntity<Venta> getVentaDetalle(@PathVariable Long id) {
-        return ventaRepository.findById(id)
-            .map(ResponseEntity::ok)
-            .orElse(ResponseEntity.notFound().build());
+        try {
+            // Guardar en Base de Datos
+            Venta ventaGuardada = ventaRepository.save(nuevaVenta);
+            log.info("✅ VENTA EXITOSA. ID Generado: {}", ventaGuardada.getId());
+
+            return ResponseEntity.ok()
+                .body("{\"resultado\": true, \"ventaId\": " + ventaGuardada.getId() + ", \"descripcion\": \"Venta registrada correctamente\"}");
+        } catch (Exception e) {
+            log.error("❌ Error al guardar en base de datos: ", e);
+            return ResponseEntity.internalServerError()
+                .body("{\"resultado\": false, \"descripcion\": \"Error BD: " + e.getMessage() + "\"}");
+        }
     }
 }

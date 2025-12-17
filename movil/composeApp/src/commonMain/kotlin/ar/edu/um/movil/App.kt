@@ -1,13 +1,12 @@
 package ar.edu.um.movil
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -16,58 +15,27 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Preview
 fun App() {
     MaterialTheme {
-        var token by remember { mutableStateOf("") }
+        // Ya no necesitamos estado de 'token' porque está fijo en NetworkClient
+        var eventoSeleccionado by remember { mutableStateOf<Evento?>(null) }
 
-        if (token.isEmpty()) {
-            LoginScreen(onLoginSuccess = { token = it })
+        // Navegación Simplificada: Lista -> Detalle
+        if (eventoSeleccionado == null) {
+            EventosScreen(
+                onEventoClick = { evento -> eventoSeleccionado = evento }
+            )
         } else {
-            EventosScreen(token = token)
+            AsientosScreen(
+                evento = eventoSeleccionado!!,
+                onBack = { eventoSeleccionado = null }
+            )
         }
     }
 }
 
-@Composable
-fun LoginScreen(onLoginSuccess: (String) -> Unit) {
-    var user by remember { mutableStateOf("admin") }
-    var pass by remember { mutableStateOf("admin") }
-    var status by remember { mutableStateOf("") }
-    val scope = rememberCoroutineScope()
-    val client = remember { NetworkClient() }
-
-    Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text("Trabajo Final 2025", style = MaterialTheme.typography.h5)
-        Spacer(Modifier.height(20.dp))
-
-        OutlinedTextField(value = user, onValueChange = { user = it }, label = { Text("Usuario") })
-        Spacer(Modifier.height(10.dp))
-        OutlinedTextField(value = pass, onValueChange = { pass = it }, label = { Text("Contraseña") }, visualTransformation = PasswordVisualTransformation())
-        Spacer(Modifier.height(20.dp))
-
-        Button(onClick = {
-            scope.launch {
-                status = "Conectando..."
-                try {
-                    val t = client.login(user, pass)
-                    status = "¡Éxito!"
-                    onLoginSuccess(t)
-                } catch (e: Exception) {
-                    status = "Error: ${e.message}"
-                    e.printStackTrace()
-                }
-            }
-        }) {
-            Text("Ingresar")
-        }
-        Text(status, color = MaterialTheme.colors.error)
-    }
-}
+// Nota: Ya no existe LoginScreen
 
 @Composable
-fun EventosScreen(token: String) {
+fun EventosScreen(onEventoClick: (Evento) -> Unit) {
     var eventos by remember { mutableStateOf<List<Evento>>(emptyList()) }
     val scope = rememberCoroutineScope()
     val client = remember { NetworkClient() }
@@ -75,7 +43,9 @@ fun EventosScreen(token: String) {
     LaunchedEffect(Unit) {
         scope.launch {
             try {
-                eventos = client.getEventos(token)
+                // CORRECCIÓN: Llamamos a getEventos() sin parámetros
+                // (El token se inyecta solo dentro del cliente)
+                eventos = client.getEventos()
             } catch (e: Exception) {
                 println("Error cargando eventos: ${e.message}")
             }
@@ -87,11 +57,19 @@ fun EventosScreen(token: String) {
     ) { padding ->
         LazyColumn(contentPadding = padding) {
             items(eventos) { evento ->
-                Card(modifier = Modifier.padding(8.dp).fillMaxWidth(), elevation = 4.dp) {
+                Card(
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .fillMaxWidth()
+                        .clickable { onEventoClick(evento) },
+                    elevation = 4.dp
+                ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(evento.titulo ?: "Sin título", style = MaterialTheme.typography.h6)
                         Text(evento.descripcion ?: "", style = MaterialTheme.typography.body2)
+                        Spacer(Modifier.height(8.dp))
                         Text("Precio: $${evento.precio}", color = MaterialTheme.colors.primary)
+                        Text("Sala: ${evento.cantidadFilas ?: 0}x${evento.cantidadColumnas ?: 0} asientos", style = MaterialTheme.typography.caption)
                     }
                 }
             }
