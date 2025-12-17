@@ -5,6 +5,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
+import ar.edu.um.proxy.service.BackendClient;
 
 @Component
 public class ConnectivityTester implements CommandLineRunner {
@@ -39,9 +40,14 @@ public class ConnectivityTester implements CommandLineRunner {
     }
 
 
+    @Autowired
+    private BackendClient backendClient;
+
     @KafkaListener(topics = "eventos-actualizacion", groupId = "${spring.kafka.consumer.group-id}")
     public void escucharKafka(String mensaje) {
-        System.out.println("🔔 KAFKA ALERTA: Se recibió un mensaje del tópico 'eventos-actualizacion':");
-        System.out.println(mensaje);
+        System.out.println("🔔 KAFKA ALERTA: Recibido evento de cátedra.");
+        System.out.println("📦 Contenido: " + mensaje);
+
+        backendClient.guardarEventoEnBackend(mensaje);
     }
 }
