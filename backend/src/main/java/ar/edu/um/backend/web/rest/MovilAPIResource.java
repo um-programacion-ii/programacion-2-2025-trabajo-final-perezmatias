@@ -12,8 +12,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @RestController
 @RequestMapping("/api/endpoints/v1")
@@ -25,21 +28,17 @@ public class MovilAPIResource {
     private final EventoRepository eventoRepository;
     private final VentaRepository ventaRepository;
 
-    // Ya no necesitamos UserRepository porque tu tabla Venta NO usa usuarios del sistema
     public MovilAPIResource(EventoRepository eventoRepository, VentaRepository ventaRepository) {
         this.eventoRepository = eventoRepository;
         this.ventaRepository = ventaRepository;
     }
 
+    // --- GETTERS ---
     @GetMapping("/eventos-resumidos")
-    public List<Evento> getEventosResumidos() {
-        return eventoRepository.findAll();
-    }
+    public List<Evento> getEventosResumidos() { return eventoRepository.findAll(); }
 
     @GetMapping("/eventos")
-    public List<Evento> getEventosCompletos() {
-        return eventoRepository.findAll();
-    }
+    public List<Evento> getEventosCompletos() { return eventoRepository.findAll(); }
 
     @GetMapping("/evento/{id}")
     public ResponseEntity<Evento> getEventoDetalle(@PathVariable Long id) {
@@ -47,52 +46,55 @@ public class MovilAPIResource {
         return evento.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
-    @PostMapping("/bloquear-asientos")
-    public ResponseEntity<?> bloquearAsientos(@RequestBody Object bloqueoDTO) {
-        return ResponseEntity.ok("{\"resultado\": true, \"descripcion\": \"Asientos bloqueados (SIMULADO)\"}");
+    // --- NUEVO: OBTENER ASIENTOS OCUPADOS ---
+    @GetMapping("/ocupados/{id}")
+    public ResponseEntity<List<SimpleAsientoDTO>> getAsientosOcupados(@PathVariable Long id) {
+        List<Venta> ventas = ventaRepository.findAllByEventoId(id);
+        List<SimpleAsientoDTO> ocupados = new ArrayList<>();
+
+        // Regex para extraer "fila=X" y "columna=Y" del texto guardado
+        Pattern pattern = Pattern.compile("fila[=:](\\d+).*?columna[=:](\\d+)");
+
+        for (Venta venta : ventas) {
+            // Leemos el campo donde guardaste el texto (asientos o descripcion)
+            String texto = venta.getAsientos();
+            if (texto != null) {
+                Matcher matcher = pattern.matcher(texto);
+                while (matcher.find()) {
+                    SimpleAsientoDTO dto = new SimpleAsientoDTO();
+                    dto.fila = Integer.parseInt(matcher.group(1));
+                    dto.columna = Integer.parseInt(matcher.group(2));
+                    ocupados.add(dto);
+                }
+            }
+        }
+        return ResponseEntity.ok(ocupados);
     }
 
+    // Clase interna para devolver solo fila/columna
+    public static class SimpleAsientoDTO {
+        public int fila;
+        public int columna;
+    }
+
+    // --- VENTA (MODO KIOSCO) ---
     @PostMapping("/realizar-venta")
     public ResponseEntity<?> realizarVenta(@RequestBody VentaMovilDTO ventaDTO) {
-        log.info("💰 PROCESANDO VENTA - Comprador: {} | DNI: {}", ventaDTO.getNombreComprador(), ventaDTO.getDniComprador());
+        log.info("💰 VENTA - Cliente: {} | DNI: {}", ventaDTO.getNombreComprador(), ventaDTO.getDniComprador());
 
-        // 1. Validar Evento
         Optional<Evento> eventoOp = eventoRepository.findById(ventaDTO.getEventoId());
-        if (eventoOp.isEmpty()) {
-            return ResponseEntity.badRequest().body("{\"resultado\": false, \"descripcion\": \"Evento no encontrado\"}");
-        }
+        if (eventoOp.isEmpty()) return ResponseEntity.badRequest().body("Evento no encontrado");
 
-        // 2. Crear la Venta y llenar los campos OBLIGATORIOS de tu entidad
         Venta nuevaVenta = new Venta();
-
-        // Fecha
-        if (ventaDTO.getFecha() != null) {
-            nuevaVenta.setFechaVenta(ventaDTO.getFecha().toInstant());
-        } else {
-            nuevaVenta.setFechaVenta(Instant.now());
-        }
-
+        nuevaVenta.setFechaVenta(ventaDTO.getFecha() != null ? ventaDTO.getFecha().toInstant() : Instant.now());
         nuevaVenta.setTotal(ventaDTO.getPrecioVenta());
         nuevaVenta.setEvento(eventoOp.get());
 
-        // --- AQUÍ ESTABA LA CLAVE ---
-        // Llenamos los campos que son @NotNull en tu Venta.java
+        // Llenamos datos obligatorios
+        nuevaVenta.setNombreComprador(ventaDTO.getNombreComprador() != null ? ventaDTO.getNombreComprador() : "Anónimo");
+        nuevaVenta.setDniComprador(ventaDTO.getDniComprador() != null ? ventaDTO.getDniComprador() : "0");
 
-        // Nombre del Comprador
-        if (ventaDTO.getNombreComprador() != null) {
-            nuevaVenta.setNombreComprador(ventaDTO.getNombreComprador());
-        } else {
-            nuevaVenta.setNombreComprador("Consumidor Final");
-        }
-
-        // DNI del Comprador
-        if (ventaDTO.getDniComprador() != null) {
-            nuevaVenta.setDniComprador(ventaDTO.getDniComprador());
-        } else {
-            nuevaVenta.setDniComprador("00000000");
-        }
-
-        // Lista de Asientos (La convertimos a String porque en BD es varchar)
+        // Guardamos todo el detalle en el campo asientos
         if (ventaDTO.getAsientos() != null) {
             nuevaVenta.setAsientos(ventaDTO.getAsientos().toString());
         } else {
@@ -100,16 +102,11 @@ public class MovilAPIResource {
         }
 
         try {
-            // Guardar en Base de Datos
-            Venta ventaGuardada = ventaRepository.save(nuevaVenta);
-            log.info("✅ VENTA EXITOSA. ID Generado: {}", ventaGuardada.getId());
-
-            return ResponseEntity.ok()
-                .body("{\"resultado\": true, \"ventaId\": " + ventaGuardada.getId() + ", \"descripcion\": \"Venta registrada correctamente\"}");
+            Venta guardada = ventaRepository.save(nuevaVenta);
+            return ResponseEntity.ok("{\"resultado\": true, \"ventaId\": " + guardada.getId() + "}");
         } catch (Exception e) {
-            log.error("❌ Error al guardar en base de datos: ", e);
-            return ResponseEntity.internalServerError()
-                .body("{\"resultado\": false, \"descripcion\": \"Error BD: " + e.getMessage() + "\"}");
+            log.error("Error BD: ", e);
+            return ResponseEntity.internalServerError().body("{\"resultado\": false, \"descripcion\": \"" + e.getMessage() + "\"}");
         }
     }
 }

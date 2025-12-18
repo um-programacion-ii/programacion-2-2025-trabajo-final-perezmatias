@@ -4,23 +4,29 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.* // Importante para mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
-// Estado visual
-data class AsientoUI(val fila: Int, val columna: Int, var seleccionado: Boolean = false, var ocupado: Boolean = false)
+// --- CORRECCIÓN AQUÍ ---
+// Ya no es 'data class', es una clase con estados observables.
+// Esto permite que Compose sepa cuándo repintar un cuadradito específico.
+class AsientoUI(val fila: Int, val columna: Int) {
+    var seleccionado by mutableStateOf(false)
+    var ocupado by mutableStateOf(false)
+}
 
 @Composable
 fun AsientosScreen(evento: Evento, onBack: () -> Unit) {
     val client = remember { NetworkClient() }
     val scope = rememberCoroutineScope()
     var mensaje by remember { mutableStateOf("") }
-    var mostrarDialogo by remember { mutableStateOf(false) } // Control del Popup
+    var mostrarDialogo by remember { mutableStateOf(false) }
 
+    // Generar la grilla vacía
     val asientos = remember {
         val lista = mutableListOf<AsientoUI>()
         val filas = evento.cantidadFilas ?: 10
@@ -29,38 +35,45 @@ fun AsientosScreen(evento: Evento, onBack: () -> Unit) {
         mutableStateListOf(*lista.toTypedArray())
     }
 
-    // DIÁLOGO EMERGENTE PARA PEDIR DATOS
+    // 🔥 CARGAR OCUPADOS AL INICIAR 🔥
+    LaunchedEffect(Unit) {
+        scope.launch {
+            val listaOcupados = client.getOcupados(evento.id)
+            listaOcupados.forEach { ocupado ->
+                // Ahora, al cambiar .ocupado = true, la UI reaccionará inmediatamente
+                val match = asientos.find { it.fila == ocupado.fila && it.columna == ocupado.columna }
+                match?.ocupado = true
+                match?.seleccionado = false
+            }
+        }
+    }
+
     if (mostrarDialogo) {
         DialogoDatosComprador(
             onDismiss = { mostrarDialogo = false },
             onConfirm = { nombre, dni ->
                 mostrarDialogo = false
                 scope.launch {
-                    mensaje = "Procesando venta..."
+                    mensaje = "Procesando..."
                     try {
+                        // Filtramos los seleccionados
                         val seleccionados = asientos.filter { it.seleccionado }
-                        val listaVenta = seleccionados.map { AsientoVenta(it.fila, it.columna) }
 
                         val request = VentaRequest(
-                            eventoId = evento.id,
-                            precioVenta = seleccionados.size * (evento.precio ?: 0.0),
-                            asientos = listaVenta,
-                            nombreComprador = nombre,
-                            dniComprador = dni
+                            evento.id, seleccionados.size * (evento.precio ?: 0.0),
+                            seleccionados.map { AsientoVenta(it.fila, it.columna) },
+                            nombre, dni
                         )
-
                         val resp = client.realizarVenta(request)
-
                         if (resp.resultado) {
-                            mensaje = "¡COMPRA EXITOSA! ID: ${resp.ventaId}"
-                            asientos.forEach { it.seleccionado = false }
-                        } else {
-                            mensaje = "Error: ${resp.descripcion}"
-                        }
-                    } catch (e: Exception) {
-                        mensaje = "Fallo de conexión: ${e.message}"
-                        e.printStackTrace()
-                    }
+                            mensaje = "¡COMPRA EXITOSA!"
+                            // Marcamos como ocupados y despintamos la selección
+                            seleccionados.forEach {
+                                it.seleccionado = false
+                                it.ocupado = true
+                            }
+                        } else mensaje = "Error: ${resp.descripcion}"
+                    } catch (e: Exception) { mensaje = "Error: ${e.message}" }
                 }
             }
         )
@@ -70,64 +83,45 @@ fun AsientosScreen(evento: Evento, onBack: () -> Unit) {
         topBar = {
             TopAppBar(
                 title = { Text(evento.titulo ?: "Selección") },
-                navigationIcon = {
-                    TextButton(onClick = onBack) { Text("<", color = Color.White, style = MaterialTheme.typography.h6) }
-                }
+                // Botón simple de volver
+                navigationIcon = { TextButton(onClick = onBack) { Text("<", color = Color.White, style = MaterialTheme.typography.h6) } }
             )
         },
         bottomBar = {
-            val seleccionados = asientos.filter { it.seleccionado }
-            if (seleccionados.isNotEmpty()) {
+            // Calculamos el total observando la lista
+            // (derivedStateOf ayuda a que se recalcule solo cuando cambia la selección)
+            val seleccionadosCount by remember { derivedStateOf { asientos.count { it.seleccionado } } }
+
+            if (seleccionadosCount > 0) {
                 Card(elevation = 8.dp) {
                     Column(Modifier.padding(16.dp)) {
-                        Text("Total a pagar: $${seleccionados.size * (evento.precio ?: 0.0)}")
-                        Spacer(Modifier.height(8.dp))
-                        Button(
-                            onClick = { mostrarDialogo = true }, // Abre el popup
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text("CONFIRMAR COMPRA")
-                        }
+                        Text("Total: $${seleccionadosCount * (evento.precio ?: 0.0)}")
+                        Button(onClick = { mostrarDialogo = true }, Modifier.fillMaxWidth()) { Text("CONFIRMAR") }
                     }
                 }
             }
         }
-    ) { padding ->
-        Column(
-            modifier = Modifier.padding(padding).fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            if (mensaje.isNotEmpty()) {
-                Text(
-                    text = mensaje,
-                    color = if(mensaje.contains("EXITOSA")) Color(0xFF4CAF50) else Color.Red,
-                    modifier = Modifier.padding(16.dp),
-                    style = MaterialTheme.typography.h6
-                )
-            }
+    ) { p ->
+        Column(Modifier.padding(p).fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
+            if (mensaje.isNotEmpty()) Text(mensaje, color = if(mensaje.contains("EXITOSA")) Color.Green else Color.Red, modifier = Modifier.padding(8.dp))
 
             Text("ESCENARIO", style = MaterialTheme.typography.caption)
             Box(Modifier.fillMaxWidth().height(4.dp).background(Color.Gray))
             Spacer(Modifier.height(10.dp))
 
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .horizontalScroll(rememberScrollState())
-                    .verticalScroll(rememberScrollState())
-            ) {
+            Box(Modifier.weight(1f).horizontalScroll(rememberScrollState()).verticalScroll(rememberScrollState())) {
                 Column {
                     val filas = evento.cantidadFilas ?: 10
                     val cols = evento.cantidadColumnas ?: 10
-
                     for (f in 1..filas) {
                         Row {
                             for (c in 1..cols) {
-                                val index = asientos.indexOfFirst { it.fila == f && it.columna == c }
-                                if (index != -1) {
-                                    val asiento = asientos[index]
+                                val asiento = asientos.find { it.fila == f && it.columna == c }
+                                if (asiento != null) {
+                                    // Pasamos el objeto asiento directamente
                                     AsientoItem(asiento) {
-                                        asientos[index] = asiento.copy(seleccionado = !asiento.seleccionado)
+                                        // Al modificar esto, la UI se actualiza sola gracias a mutableStateOf
+                                        asiento.seleccionado = !asiento.seleccionado
                                     }
                                 }
                             }
@@ -141,16 +135,18 @@ fun AsientosScreen(evento: Evento, onBack: () -> Unit) {
 
 @Composable
 fun AsientoItem(asiento: AsientoUI, onClick: () -> Unit) {
+    // Como las propiedades son observables, este color cambiará solo
     val color = when {
         asiento.ocupado -> Color.Red
-        asiento.seleccionado -> Color(0xFF4CAF50)
+        asiento.seleccionado -> Color(0xFF4CAF50) // Verde
         else -> Color.LightGray
     }
+
     Box(
         modifier = Modifier
             .padding(2.dp)
             .size(34.dp)
-            .background(color, shape = RoundedCornerShape(4.dp))
+            .background(color, RoundedCornerShape(4.dp))
             .clickable(enabled = !asiento.ocupado) { onClick() },
         contentAlignment = Alignment.Center
     ) {
@@ -162,22 +158,11 @@ fun AsientoItem(asiento: AsientoUI, onClick: () -> Unit) {
 fun DialogoDatosComprador(onDismiss: () -> Unit, onConfirm: (String, String) -> Unit) {
     var nombre by remember { mutableStateOf("") }
     var dni by remember { mutableStateOf("") }
-
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Datos del Comprador") },
-        text = {
-            Column {
-                OutlinedTextField(value = nombre, onValueChange = { nombre = it }, label = { Text("Nombre Completo") })
-                Spacer(Modifier.height(8.dp))
-                OutlinedTextField(value = dni, onValueChange = { dni = it }, label = { Text("DNI") })
-            }
-        },
-        confirmButton = {
-            Button(onClick = { onConfirm(nombre, dni) }) { Text("Finalizar Compra") }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancelar") }
-        }
+        title = { Text("Datos") },
+        text = { Column { OutlinedTextField(nombre, { nombre = it }, label = { Text("Nombre") }); OutlinedTextField(dni, { dni = it }, label = { Text("DNI") }) } },
+        confirmButton = { Button(onClick = { onConfirm(nombre, dni) }) { Text("OK") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancelar") } }
     )
 }

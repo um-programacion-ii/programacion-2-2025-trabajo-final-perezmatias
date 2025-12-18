@@ -15,18 +15,14 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
-// --- TOKEN MAESTRO ---
-// Token válido hasta Enero 2026 (aprox) con permisos de ADMIN
+// ¡PEGA AQUÍ TU TOKEN REAL! (El mismo que usaste antes)
 const val TOKEN_MAESTRO = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc2ODYwNjIyNCwiYXV0aCI6IlJPTEVfQURNSU4gUk9MRV9VU0VSIiwiaWF0IjoxNzY2MDE0MjI0LCJ1c2VySWQiOjF9.03wu6naREs5h7iv-QMHldigJvAq4nt8ioU2Su-zPV486Uq77nhmuypgBZ9qb_nHWKBOluoPqhJ5O0dU5hcLwfw"
-
-// --- DTOs ---
 
 @Serializable
 data class Evento(
     val id: Long,
     val titulo: String? = null,
     val descripcion: String? = null,
-    val fechaHora: String? = null,
     val precio: Double? = null,
     val cantidadFilas: Int? = null,
     val cantidadColumnas: Int? = null
@@ -49,44 +45,46 @@ data class AsientoVenta(
 )
 
 @Serializable
-data class VentaResponse(
-    val resultado: Boolean,
-    val ventaId: Long? = null,
-    val descripcion: String? = null
-)
+data class VentaResponse(val resultado: Boolean, val ventaId: Long? = null, val descripcion: String? = null)
 
 class NetworkClient {
-
     private val client = HttpClient {
-        install(ContentNegotiation) {
-            json(Json { ignoreUnknownKeys = true; prettyPrint = true })
-        }
+        install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true; prettyPrint = true }) }
     }
 
-    // ⚠️ REVISA QUE ESTA IP SEA LA DE TU PC
+    // IP de tu PC
     private val baseUrl = "http://192.168.1.36:8080/api"
 
-    // Obtener Eventos (Usa el Token Maestro fijo)
     suspend fun getEventos(): List<Evento> {
-        val url = "$baseUrl/endpoints/v1/eventos-resumidos"
-        println("📡 Buscando eventos...")
-        val response = client.get(url) {
+        val response = client.get("$baseUrl/endpoints/v1/eventos-resumidos") {
             header(HttpHeaders.Authorization, "Bearer $TOKEN_MAESTRO")
         }
-        if (!response.status.isSuccess()) throw Exception("Error Eventos: ${response.status.value}")
+        if (!response.status.isSuccess()) return emptyList()
         return response.body()
     }
 
-    // Realizar Venta
     suspend fun realizarVenta(venta: VentaRequest): VentaResponse {
-        val url = "$baseUrl/endpoints/v1/realizar-venta"
-        println("💰 Enviando venta de: ${venta.nombreComprador}")
-        val response = client.post(url) {
+        val response = client.post("$baseUrl/endpoints/v1/realizar-venta") {
             header(HttpHeaders.Authorization, "Bearer $TOKEN_MAESTRO")
             contentType(ContentType.Application.Json)
             setBody(venta)
         }
-        if (!response.status.isSuccess()) throw Exception("Error Venta: ${response.status.value}")
+        if (!response.status.isSuccess()) throw Exception("Error: ${response.status.value}")
         return response.body()
+    }
+
+    // NUEVO: Traer ocupados
+    suspend fun getOcupados(eventoId: Long): List<AsientoVenta> {
+        try {
+            val response = client.get("$baseUrl/endpoints/v1/ocupados/$eventoId") {
+                header(HttpHeaders.Authorization, "Bearer $TOKEN_MAESTRO")
+            }
+            if (response.status.isSuccess()) {
+                return response.body()
+            }
+        } catch (e: Exception) {
+            println("Error ocupados: ${e.message}")
+        }
+        return emptyList()
     }
 }
