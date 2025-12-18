@@ -46,17 +46,16 @@ public class MovilAPIResource {
         return evento.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
-    // --- NUEVO: OBTENER ASIENTOS OCUPADOS ---
+    // --- OBTENER ASIENTOS OCUPADOS ---
     @GetMapping("/ocupados/{id}")
     public ResponseEntity<List<SimpleAsientoDTO>> getAsientosOcupados(@PathVariable Long id) {
         List<Venta> ventas = ventaRepository.findAllByEventoId(id);
         List<SimpleAsientoDTO> ocupados = new ArrayList<>();
 
-        // Regex para extraer "fila=X" y "columna=Y" del texto guardado
+        // Regex que busca "fila=X" y "columna=Y" en el texto
         Pattern pattern = Pattern.compile("fila[=:](\\d+).*?columna[=:](\\d+)");
 
         for (Venta venta : ventas) {
-            // Leemos el campo donde guardaste el texto (asientos o descripcion)
             String texto = venta.getAsientos();
             if (texto != null) {
                 Matcher matcher = pattern.matcher(texto);
@@ -94,12 +93,20 @@ public class MovilAPIResource {
         nuevaVenta.setNombreComprador(ventaDTO.getNombreComprador() != null ? ventaDTO.getNombreComprador() : "Anónimo");
         nuevaVenta.setDniComprador(ventaDTO.getDniComprador() != null ? ventaDTO.getDniComprador() : "0");
 
-        // Guardamos todo el detalle en el campo asientos
+        // --- 🛠️ CORRECCIÓN: Guardar formato legible ---
         if (ventaDTO.getAsientos() != null) {
-            nuevaVenta.setAsientos(ventaDTO.getAsientos().toString());
+            StringBuilder sb = new StringBuilder();
+            // Iteramos los asientos y creamos un texto tipo "[fila=1, columna=2]..."
+            for (VentaMovilDTO.AsientoDTO asiento : ventaDTO.getAsientos()) {
+                sb.append("[fila=").append(asiento.getFila())
+                    .append(", columna=").append(asiento.getColumna())
+                    .append("] ");
+            }
+            nuevaVenta.setAsientos(sb.toString());
         } else {
             nuevaVenta.setAsientos("[]");
         }
+        // ----------------------------------------------
 
         try {
             Venta guardada = ventaRepository.save(nuevaVenta);
