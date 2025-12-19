@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 
+//Obtener asientos
+
 @Service
 public class CatedraRedisService {
 

@@ -8,12 +8,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import java.util.List;
 
 /**
  * Spring Data JPA repository for the Venta entity.
  */
+@SuppressWarnings("unused")
 @Repository
 public interface VentaRepository extends JpaRepository<Venta, Long> {
+    List<Venta> findAllByEventoId(Long eventoId);
     default Optional<Venta> findOneWithEagerRelationships(Long id) {
         return this.findOneWithToOneRelationships(id);
     }

@@ -34,7 +34,7 @@ public class Venta implements Serializable {
     private BigDecimal total;
 
     @NotNull
-    @Column(name = "asientos", nullable = false)
+    @Column(name = "asientos", nullable = false, length = 5000)
     private String asientos;
 
     @NotNull
