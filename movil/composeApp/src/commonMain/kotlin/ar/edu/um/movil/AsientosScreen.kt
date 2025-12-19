@@ -4,16 +4,13 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.runtime.* // Importante para mutableStateOf
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
-// --- CORRECCIÓN AQUÍ ---
-// Ya no es 'data class', es una clase con estados observables.
-// Esto permite que Compose sepa cuándo repintar un cuadradito específico.
 class AsientoUI(val fila: Int, val columna: Int) {
     var seleccionado by mutableStateOf(false)
     var ocupado by mutableStateOf(false)
@@ -35,12 +32,11 @@ fun AsientosScreen(evento: Evento, onBack: () -> Unit) {
         mutableStateListOf(*lista.toTypedArray())
     }
 
-    // 🔥 CARGAR OCUPADOS AL INICIAR 🔥
+    // Cargar Ocupados
     LaunchedEffect(Unit) {
         scope.launch {
             val listaOcupados = client.getOcupados(evento.id)
             listaOcupados.forEach { ocupado ->
-                // Ahora, al cambiar .ocupado = true, la UI reaccionará inmediatamente
                 val match = asientos.find { it.fila == ocupado.fila && it.columna == ocupado.columna }
                 match?.ocupado = true
                 match?.seleccionado = false
@@ -56,7 +52,6 @@ fun AsientosScreen(evento: Evento, onBack: () -> Unit) {
                 scope.launch {
                     mensaje = "Procesando..."
                     try {
-                        // Filtramos los seleccionados
                         val seleccionados = asientos.filter { it.seleccionado }
 
                         val request = VentaRequest(
@@ -67,7 +62,6 @@ fun AsientosScreen(evento: Evento, onBack: () -> Unit) {
                         val resp = client.realizarVenta(request)
                         if (resp.resultado) {
                             mensaje = "¡COMPRA EXITOSA!"
-                            // Marcamos como ocupados y despintamos la selección
                             seleccionados.forEach {
                                 it.seleccionado = false
                                 it.ocupado = true
@@ -89,7 +83,6 @@ fun AsientosScreen(evento: Evento, onBack: () -> Unit) {
         },
         bottomBar = {
             // Calculamos el total observando la lista
-            // (derivedStateOf ayuda a que se recalcule solo cuando cambia la selección)
             val seleccionadosCount by remember { derivedStateOf { asientos.count { it.seleccionado } } }
 
             if (seleccionadosCount > 0) {
@@ -120,7 +113,6 @@ fun AsientosScreen(evento: Evento, onBack: () -> Unit) {
                                 if (asiento != null) {
                                     // Pasamos el objeto asiento directamente
                                     AsientoItem(asiento) {
-                                        // Al modificar esto, la UI se actualiza sola gracias a mutableStateOf
                                         asiento.seleccionado = !asiento.seleccionado
                                     }
                                 }
@@ -135,7 +127,6 @@ fun AsientosScreen(evento: Evento, onBack: () -> Unit) {
 
 @Composable
 fun AsientoItem(asiento: AsientoUI, onClick: () -> Unit) {
-    // Como las propiedades son observables, este color cambiará solo
     val color = when {
         asiento.ocupado -> Color.Red
         asiento.seleccionado -> Color(0xFF4CAF50) // Verde

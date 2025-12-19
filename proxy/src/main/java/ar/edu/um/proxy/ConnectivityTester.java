@@ -14,13 +14,14 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+//Manejo de sincronizacion
+
 @Component
 public class ConnectivityTester implements CommandLineRunner {
 
     @Autowired
     private BackendClient backendClient;
 
-    // Leemos la URL y el Token del application.properties
     @Value("${catedra.url}")
     private String catedraUrl;
 
@@ -33,15 +34,14 @@ public class ConnectivityTester implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         System.out.println(">>> PROXY INICIADO <<<");
-        // Al arrancar, intentamos sincronizar inmediatamente para no esperar a Kafka
         sincronizarConCatedra();
     }
+
+//Listener de Kafka
 
     @KafkaListener(topics = "eventos-actualizacion", groupId = "${spring.kafka.consumer.group-id}")
     public void escucharKafka(String mensaje) {
         System.out.println("🔔 KAFKA ALERTA: El profesor notificó cambios.");
-        // NO usamos el 'mensaje' porque es solo texto plano.
-        // Disparamos la búsqueda de datos reales:
         sincronizarConCatedra();
     }
 
@@ -49,12 +49,12 @@ public class ConnectivityTester implements CommandLineRunner {
         System.out.println("🔄 Conectando a la API del Profesor para descargar eventos...");
 
         try {
-            // 1. Preparamos la cabecera con el Token del Profesor
+            // 1. Cabecera
             HttpHeaders headers = new HttpHeaders();
             headers.set("Authorization", "Bearer " + catedraToken);
             HttpEntity<String> entity = new HttpEntity<>(headers);
 
-            // 2. Consultamos el endpoint GET /eventos de la Cátedra
+            // 2.  GET /eventos de la Cátedra
             String url = catedraUrl + "/api/eventos";
 
             ResponseEntity<String> response = restTemplate.exchange(
@@ -62,15 +62,14 @@ public class ConnectivityTester implements CommandLineRunner {
             );
 
             if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-                // 3. Leemos el JSON que devolvió el profesor (es una lista [])
+                // 3. Leemos el JSON
                 JsonNode eventosArray = objectMapper.readTree(response.getBody());
 
                 System.out.println("📦 La Cátedra tiene " + eventosArray.size() + " eventos.");
 
-                // 4. Recorremos y enviamos CADA evento a tu Backend Local
+                // 4. Recorremos y enviamos al Back
                 for (JsonNode evento : eventosArray) {
                     try {
-                        // Convertimos el objeto JSON a String para que tu Backend lo entienda
                         String eventoJson = evento.toString();
                         backendClient.guardarEventoEnBackend(eventoJson);
                     } catch (Exception e) {

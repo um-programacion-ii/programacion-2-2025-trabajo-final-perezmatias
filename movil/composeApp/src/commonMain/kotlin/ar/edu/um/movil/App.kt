@@ -15,7 +15,6 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Preview
 fun App() {
     MaterialTheme {
-        // Ya no necesitamos estado de 'token' porque está fijo en NetworkClient
         var eventoSeleccionado by remember { mutableStateOf<Evento?>(null) }
 
         // Navegación Simplificada: Lista -> Detalle
@@ -32,8 +31,6 @@ fun App() {
     }
 }
 
-// Nota: Ya no existe LoginScreen
-
 @Composable
 fun EventosScreen(onEventoClick: (Evento) -> Unit) {
     var eventos by remember { mutableStateOf<List<Evento>>(emptyList()) }
@@ -43,8 +40,6 @@ fun EventosScreen(onEventoClick: (Evento) -> Unit) {
     LaunchedEffect(Unit) {
         scope.launch {
             try {
-                // CORRECCIÓN: Llamamos a getEventos() sin parámetros
-                // (El token se inyecta solo dentro del cliente)
                 eventos = client.getEventos()
             } catch (e: Exception) {
                 println("Error cargando eventos: ${e.message}")

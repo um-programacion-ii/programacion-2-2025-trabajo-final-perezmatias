@@ -13,6 +13,8 @@ import org.springframework.web.client.RestTemplate;
 import java.util.HashMap;
 import java.util.Map;
 
+//Communicacion con el Backend Local
+
 @Service
 public class BackendClient {
 
@@ -21,6 +23,8 @@ public class BackendClient {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     private String localToken = null;
+
+//Autenticación contra el JHipster local
 
     private void login() {
         try {
@@ -45,6 +49,8 @@ public class BackendClient {
         }
     }
 
+//Recibe los datos de la catedra y los corrige
+
     public void guardarEventoEnBackend(String jsonEvento) {
         if (localToken == null) login();
 
@@ -54,14 +60,10 @@ public class BackendClient {
             if (rootNode instanceof ObjectNode) {
                 ObjectNode object = (ObjectNode) rootNode;
 
-                // --- 🛠️ LA CORRECCIÓN CLAVE ---
-                // Eliminamos el ID que viene de afuera para que JHipster cree uno nuevo
                 if (object.has("id")) {
                     object.remove("id");
                 }
-                // ------------------------------
 
-                // Parches de datos faltantes
                 if (!object.has("cantidadFilas") || object.get("cantidadFilas").isNull()) object.put("cantidadFilas", 10);
                 if (!object.has("cantidadColumnas") || object.get("cantidadColumnas").isNull()) object.put("cantidadColumnas", 10);
                 if (!object.has("precio") || object.get("precio").isNull()) object.put("precio", 1000.0);
@@ -70,6 +72,8 @@ public class BackendClient {
 
                 jsonEvento = object.toString();
             }
+
+//Envia los datos limpios al Backend
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);

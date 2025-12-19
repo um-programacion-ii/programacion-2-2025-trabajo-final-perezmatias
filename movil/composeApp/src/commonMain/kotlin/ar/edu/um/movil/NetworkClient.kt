@@ -15,7 +15,6 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
-// ¡PEGA AQUÍ TU TOKEN REAL! (El mismo que usaste antes)
 const val TOKEN_MAESTRO = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc2ODYwNjIyNCwiYXV0aCI6IlJPTEVfQURNSU4gUk9MRV9VU0VSIiwiaWF0IjoxNzY2MDE0MjI0LCJ1c2VySWQiOjF9.03wu6naREs5h7iv-QMHldigJvAq4nt8ioU2Su-zPV486Uq77nhmuypgBZ9qb_nHWKBOluoPqhJ5O0dU5hcLwfw"
 
 @Serializable
@@ -52,7 +51,6 @@ class NetworkClient {
         install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true; prettyPrint = true }) }
     }
 
-    // IP de tu PC
     private val baseUrl = "http://192.168.1.36:8080/api"
 
     suspend fun getEventos(): List<Evento> {
@@ -73,7 +71,6 @@ class NetworkClient {
         return response.body()
     }
 
-    // NUEVO: Traer ocupados
     suspend fun getOcupados(eventoId: Long): List<AsientoVenta> {
         try {
             val response = client.get("$baseUrl/endpoints/v1/ocupados/$eventoId") {

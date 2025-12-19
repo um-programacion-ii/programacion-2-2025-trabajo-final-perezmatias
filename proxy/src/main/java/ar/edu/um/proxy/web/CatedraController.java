@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ar.edu.um.proxy.service.BackendClient;
 
+//Controlador REST del Proxy
+
 @RestController
 @RequestMapping("/api/catedra")
 public class CatedraController {
