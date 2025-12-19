@@ -22,7 +22,6 @@ public class EventoCatedraDTO {
 
     private String imagen;
 
-    // --- NUEVOS CAMPOS (Dimensiones Reales) ---
     @JsonAlias("filaAsientos")
     private Integer cantidadFilas;
 
