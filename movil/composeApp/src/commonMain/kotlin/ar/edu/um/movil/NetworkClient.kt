@@ -51,7 +51,7 @@ class NetworkClient {
         install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true; prettyPrint = true }) }
     }
 
-    private val baseUrl = "http://192.168.1.36:8080/api"
+    private val baseUrl = "http://10.0.2.2:8080/api"
 
     suspend fun getEventos(): List<Evento> {
         val response = client.get("$baseUrl/endpoints/v1/eventos-resumidos") {
