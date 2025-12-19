@@ -32,7 +32,22 @@ public class EventoService {
      * @return the persisted entity.
      */
     public Evento save(Evento evento) {
-        LOG.debug("Request to save Evento : {}", evento);
+        LOG.debug("Request to save Evento (con chequeo de duplicados): {}", evento);
+
+        // 1. Verificamos si el evento tiene título
+        if (evento.getTitulo() != null) {
+
+            // 2. Buscamos en la BD si ya existe ese título
+            Optional<Evento> existente = eventoRepository.findOneByTitulo(evento.getTitulo());
+
+            if (existente.isPresent()) {
+                // 3. Si existe, ¡LE ROBAMOS EL ID!
+                LOG.debug("Evento duplicado detectado: {}. Actualizando ID: {}", evento.getTitulo(), existente.get().getId());
+                evento.setId(existente.get().getId());
+            }
+        }
+
+        // 4. Guardamos (Si tenía ID hace Update, si no, hace Insert)
         return eventoRepository.save(evento);
     }
 
